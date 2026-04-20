@@ -2,3 +2,4 @@ iFood/bin/
 iFood/obj/
 *.user
 .vs/
+!iFood/bin/Debug/net8.0-windows/Databases
