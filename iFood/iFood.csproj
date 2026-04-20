@@ -8,4 +8,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Databases\" />
+  </ItemGroup>
+    
+    <ItemGroup>
+		<None Update="Databases\*.db">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>
