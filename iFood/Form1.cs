@@ -6,5 +6,9 @@ namespace iFood
         {
             InitializeComponent();
         }
+        public void test()
+        {
+
+        }
     }
 }
