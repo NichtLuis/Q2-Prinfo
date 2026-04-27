@@ -17,19 +17,34 @@ namespace iFood
                     Name  TEXT NOT NULL,
                     Preis REAL
                 )");
+            SQLAdd();
+            SQLInComboBox();
         }
 
-        // Beispiel: Button-Click zum Einfügen
-        private void btnAddGericht_Click(object sender, EventArgs e)
+    
+        private void SQLAdd()
         {
-            //using var conn = gerichteDb.OpenConnection();
-            //var cmd = conn.CreateCommand();
-            //cmd.CommandText = "INSERT INTO Gerichte (Name, Preis) VALUES ($name, $preis)";
-            //cmd.Parameters.AddWithValue("$name", "Pizza Margherita");
-            //cmd.Parameters.AddWithValue("$preis", 8.50);
-            //cmd.ExecuteNonQuery();
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT INTO Lebensmittel (Name, Preis) VALUES ($Name, $Preis)";
+            cmd.Parameters.AddWithValue("$Name", "Pizzer");
+            cmd.Parameters.AddWithValue("$Preis", 80);
+            cmd.ExecuteNonQuery();
+        }
+        private void SQLInComboBox()
+        {
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Id, Name, Preis FROM Lebensmittel";
 
-            //MessageBox.Show("Gericht hinzugefügt!");
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                int Id = reader.GetInt32(0);
+                string Name = reader.GetString(1);
+                int Preis = reader.GetInt32(2);
+                MessageBox.Show(Id + " " + Name + " " + Preis);
+            }
         }
     }
 }
