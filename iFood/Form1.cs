@@ -5,6 +5,7 @@ namespace iFood
         // Felder für deine DBs
         private DbManager gerichteDb;
         private DbManager bestellungenDb;
+        private DbManager lebensmittelDb;
 
         public Form1()
         {
@@ -13,6 +14,8 @@ namespace iFood
             // DBs initialisieren
             gerichteDb = new DbManager("gerichte.db");
             bestellungenDb = new DbManager("bestellungen.db");
+            lebensmittelDb = new DbManager("lebensmittel.db");
+
 
             // Tabellen anlegen (nur beim ersten Start nötig, schadet aber nicht)
             gerichteDb.Execute(@"
@@ -28,6 +31,9 @@ namespace iFood
                     GerichtId INTEGER,
                     Menge     INTEGER
                 )");
+            lebensmittelDb.Execute(@"
+                CREATE TABLE IF NOT EXISTS Lebensmittel (
+                    Id        INTERGER)");
         }
 
         // Beispiel: Button-Click zum Einfügen
