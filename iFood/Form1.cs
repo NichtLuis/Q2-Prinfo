@@ -63,7 +63,7 @@ namespace iFood
                     FOREIGN KEY (UtensilId) REFERENCES Utensilien(UtensilId)
                 )");
             //SQLAdd();
-            //SQLInComboBox();
+            SQLInComboBox();
         }
 
 
@@ -71,24 +71,23 @@ namespace iFood
         {
             using var conn = iFoodDb.OpenConnection();
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT INTO Lebensmittel (Name, Preis) VALUES ($Name, $Preis)";
+            cmd.CommandText = "INSERT INTO Lebensmittel (Name) VALUES ($Name)";
             cmd.Parameters.AddWithValue("$Name", "Pizzer");
-            cmd.Parameters.AddWithValue("$Preis", 80);
             cmd.ExecuteNonQuery();
         }
         private void SQLInComboBox()
         {
             using var conn = iFoodDb.OpenConnection();
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT Id, Name, Preis FROM Lebensmittel";
+            cmd.CommandText = "SELECT Id, Name FROM Lebensmittel";
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 int Id = reader.GetInt32(0);
                 string Name = reader.GetString(1);
-                int Preis = reader.GetInt32(2);
-                MessageBox.Show(Id + " " + Name + " " + Preis);
+                //string Hersteller = reader.GetString(2);
+                CBRezeptAuswahl.Items.Add(Id + " " + Name + " ");
             }
         }
         private void Suche()
@@ -98,8 +97,22 @@ namespace iFood
             {
                 using var conn = iFoodDb.OpenConnection();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT Name FROM Lebensmittel WHERE NAME LIKE %" + suche + "%";
+                cmd.CommandText = "SELECT Name FROM Lebensmittel WHERE Name LIKE $s";
+                cmd.Parameters.AddWithValue("$s", "%" + suche + "%");
 
+                using var reader = cmd.ExecuteReader();
+                var treffer = new List<string>();
+                while (reader.Read())
+                {
+                    treffer.Add(reader.GetString(0));
+                }
+
+                LBErgebnis.Items.Clear();
+                if (treffer.Count == 0)
+                    LBErgebnis.Items.Add("Keine Treffer");
+                else
+                    foreach (var t in treffer)
+                        LBErgebnis.Items.Add(t);
             }
         }
 
@@ -107,5 +120,6 @@ namespace iFood
         {
             Suche();
         }
+
     }
 }

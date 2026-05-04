@@ -31,6 +31,8 @@
             CBRezeptAuswahl = new ComboBox();
             TBSuche = new TextBox();
             BTSuche = new Button();
+            LBDebug = new Label();
+            LBErgebnis = new ListBox();
             SuspendLayout();
             // 
             // CBRezeptAuswahl
@@ -59,11 +61,31 @@
             BTSuche.UseVisualStyleBackColor = true;
             BTSuche.Click += BTSuche_Click;
             // 
+            // LBDebug
+            // 
+            LBDebug.AutoSize = true;
+            LBDebug.Location = new Point(696, 127);
+            LBDebug.Name = "LBDebug";
+            LBDebug.Size = new Size(66, 25);
+            LBDebug.TabIndex = 3;
+            LBDebug.Text = "Debug";
+            // 
+            // LBErgebnis
+            // 
+            LBErgebnis.FormattingEnabled = true;
+            LBErgebnis.ItemHeight = 25;
+            LBErgebnis.Location = new Point(12, 302);
+            LBErgebnis.Name = "LBErgebnis";
+            LBErgebnis.Size = new Size(727, 429);
+            LBErgebnis.TabIndex = 4;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1745, 774);
+            Controls.Add(LBErgebnis);
+            Controls.Add(LBDebug);
             Controls.Add(BTSuche);
             Controls.Add(TBSuche);
             Controls.Add(CBRezeptAuswahl);
@@ -78,5 +100,7 @@
         private ComboBox CBRezeptAuswahl;
         private TextBox TBSuche;
         private Button BTSuche;
+        private Label LBDebug;
+        private ListBox LBErgebnis;
     }
 }
