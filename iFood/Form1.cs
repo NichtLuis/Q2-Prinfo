@@ -44,7 +44,7 @@ namespace iFood
             iFoodDb.Execute(@"
                 CREATE TABLE IF NOT EXISTS Utensilien
                 (
-                    UtensilId   INTEGER PRIMARY KEY AUTOINCREMENT,
+                    UtensilId INTEGER PRIMARY KEY AUTOINCREMENT,
                     Name TEXT NOT NULL
                 )");
             iFoodDb.Execute(@"
