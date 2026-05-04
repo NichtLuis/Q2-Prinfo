@@ -28,30 +28,55 @@
         /// </summary>
         private void InitializeComponent()
         {
-            comboBox1 = new ComboBox();
+            CBRezeptAuswahl = new ComboBox();
+            TBSuche = new TextBox();
+            BTSuche = new Button();
             SuspendLayout();
             // 
-            // comboBox1
+            // CBRezeptAuswahl
             // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(358, 119);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(182, 33);
-            comboBox1.TabIndex = 0;
+            CBRezeptAuswahl.FormattingEnabled = true;
+            CBRezeptAuswahl.Location = new Point(358, 119);
+            CBRezeptAuswahl.Name = "CBRezeptAuswahl";
+            CBRezeptAuswahl.Size = new Size(182, 33);
+            CBRezeptAuswahl.TabIndex = 0;
+            // 
+            // TBSuche
+            // 
+            TBSuche.Location = new Point(374, 191);
+            TBSuche.Name = "TBSuche";
+            TBSuche.PlaceholderText = "Stichworte zur suche eingeben";
+            TBSuche.Size = new Size(438, 31);
+            TBSuche.TabIndex = 1;
+            // 
+            // BTSuche
+            // 
+            BTSuche.Location = new Point(895, 209);
+            BTSuche.Name = "BTSuche";
+            BTSuche.Size = new Size(163, 93);
+            BTSuche.TabIndex = 2;
+            BTSuche.Text = "Suchen";
+            BTSuche.UseVisualStyleBackColor = true;
+            BTSuche.Click += BTSuche_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(comboBox1);
+            ClientSize = new Size(1745, 774);
+            Controls.Add(BTSuche);
+            Controls.Add(TBSuche);
+            Controls.Add(CBRezeptAuswahl);
             Name = "Form1";
             Text = "Form1";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
-        private ComboBox comboBox1;
+        private ComboBox CBRezeptAuswahl;
+        private TextBox TBSuche;
+        private Button BTSuche;
     }
 }

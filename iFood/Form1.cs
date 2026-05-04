@@ -18,7 +18,6 @@ namespace iFood
                     Hersteller TEXT
                 )");
 
-
             iFoodDb.Execute(@"
                 CREATE TABLE IF NOT EXISTS Naehrwerte (
                     Id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,22 +48,22 @@ namespace iFood
                 )");
             iFoodDb.Execute(@"
                 CREATE TABLE IF NOT EXISTS RezeptLebensmitteln (
-                    RezeptID INTEGER NOT NULL,
-                    LebensmittelID INTEGER NOT NULL,
+                    RezeptId INTEGER NOT NULL,
+                    LebensmittelId INTEGER NOT NULL,
                     Menge REAL,
-                    FOREIGN KEY (RezeptID) REFERENCES Rezepte(Id),
-                    FOREIGN KEY (LebensmittelID) REFERENCES Lebensmittel(Id)
+                    FOREIGN KEY (RezeptId) REFERENCES Rezepte(Id),
+                    FOREIGN KEY (LebensmittelId) REFERENCES Lebensmittel(Id)
                 )");
             iFoodDb.Execute(@"
                 CREATE TABLE IF NOT EXISTS RezeptUtensilien (
-                    RezeptID INTEGER NOT NULL,
-                    UtensilName TEXT NOT NULL,
+                    RezeptId INTEGER NOT NULL,
+                    UtensilId INTEGER NOT NULL,
                     PRIMARY KEY (RezeptID, UtensilId),
-                    FOREIGN KEY (RezeptID) REFERENCES Rezepte(Id),
-                    FOREIGN KEY (UtensilName) REFERENCES Utensilien(Name)
+                    FOREIGN KEY (RezeptID) REFERENCES Rezepte(RezeptId),
+                    FOREIGN KEY (UtensilId) REFERENCES Utensilien(UtensilId)
                 )");
-            SQLAdd();
-            SQLInComboBox();
+            //SQLAdd();
+            //SQLInComboBox();
         }
 
 
@@ -91,6 +90,22 @@ namespace iFood
                 int Preis = reader.GetInt32(2);
                 MessageBox.Show(Id + " " + Name + " " + Preis);
             }
+        }
+        private void Suche()
+        {
+            string suche = Convert.ToString(TBSuche.Text);
+            if (suche != string.Empty)
+            {
+                using var conn = iFoodDb.OpenConnection();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT Name FROM Lebensmittel WHERE NAME LIKE %" + suche + "%";
+
+            }
+        }
+
+        private void BTSuche_Click(object sender, EventArgs e)
+        {
+            Suche();
         }
     }
 }
