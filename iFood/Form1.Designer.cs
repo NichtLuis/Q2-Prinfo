@@ -73,6 +73,7 @@
             // LBErgebnis
             // 
             LBErgebnis.FormattingEnabled = true;
+            LBErgebnis.HorizontalScrollbar = true;
             LBErgebnis.ItemHeight = 25;
             LBErgebnis.Location = new Point(12, 302);
             LBErgebnis.Name = "LBErgebnis";
