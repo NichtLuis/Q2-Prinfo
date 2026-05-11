@@ -270,5 +270,14 @@ namespace iFood
             string Item = Convert.ToString(LBErgebnis.SelectedItem);
             Ausgabe(Item);
         }
+
+        private void BTDatenLoeschen_Click(object sender, EventArgs e)
+        {
+            foreach(TextBox TB in TBNaherwerte)
+            {
+                TB.Text = "";
+            }
+            TBSuche.Text = "";
+        }
     }
 }
