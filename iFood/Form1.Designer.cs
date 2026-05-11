@@ -106,6 +106,7 @@
             TCAnzeige.Controls.Add(TPUtensilien);
             TCAnzeige.Dock = DockStyle.Top;
             TCAnzeige.Location = new Point(0, 0);
+            TCAnzeige.Margin = new Padding(2);
             TCAnzeige.Name = "TCAnzeige";
             TCAnzeige.SelectedIndex = 0;
             TCAnzeige.Size = new Size(2118, 1023);
@@ -118,7 +119,8 @@
             TPLebensmittel.Controls.Add(LBErgebnis);
             TPLebensmittel.Controls.Add(BTSuche);
             TPLebensmittel.Controls.Add(TBSuche);
-            TPLebensmittel.Location = new Point(8, 46);
+            TPLebensmittel.Location = new Point(4, 34);
+            TPLebensmittel.Margin = new Padding(2);
             TPLebensmittel.Name = "TPLebensmittel";
             TPLebensmittel.Padding = new Padding(3);
             TPLebensmittel.Size = new Size(2102, 969);
@@ -142,129 +144,145 @@
             GBNaehrwerte.Controls.Add(LBFett);
             GBNaehrwerte.Controls.Add(LBKohlenhydrate);
             GBNaehrwerte.Controls.Add(LBKalorien);
-            GBNaehrwerte.Location = new Point(450, 8);
+            GBNaehrwerte.Location = new Point(346, 6);
+            GBNaehrwerte.Margin = new Padding(2);
             GBNaehrwerte.Name = "GBNaehrwerte";
-            GBNaehrwerte.Size = new Size(542, 430);
+            GBNaehrwerte.Padding = new Padding(2);
+            GBNaehrwerte.Size = new Size(417, 336);
             GBNaehrwerte.TabIndex = 7;
             GBNaehrwerte.TabStop = false;
             GBNaehrwerte.Text = "Nährwerte";
             // 
             // TBSalz
             // 
-            TBSalz.Location = new Point(118, 313);
+            TBSalz.Location = new Point(91, 245);
+            TBSalz.Margin = new Padding(2);
             TBSalz.Name = "TBSalz";
             TBSalz.PlaceholderText = "g";
-            TBSalz.Size = new Size(200, 39);
+            TBSalz.Size = new Size(155, 31);
             TBSalz.TabIndex = 21;
             // 
             // LBSalz
             // 
             LBSalz.AutoSize = true;
-            LBSalz.Location = new Point(6, 313);
+            LBSalz.Location = new Point(5, 245);
+            LBSalz.Margin = new Padding(2, 0, 2, 0);
             LBSalz.Name = "LBSalz";
-            LBSalz.Size = new Size(61, 32);
+            LBSalz.Size = new Size(47, 25);
             LBSalz.TabIndex = 20;
             LBSalz.Text = "Salz:";
             // 
             // TBEiweiss
             // 
-            TBEiweiss.Location = new Point(118, 268);
+            TBEiweiss.Location = new Point(91, 209);
+            TBEiweiss.Margin = new Padding(2);
             TBEiweiss.Name = "TBEiweiss";
             TBEiweiss.PlaceholderText = "g";
-            TBEiweiss.Size = new Size(200, 39);
+            TBEiweiss.Size = new Size(155, 31);
             TBEiweiss.TabIndex = 19;
             // 
             // TBZucker
             // 
-            TBZucker.Location = new Point(118, 223);
+            TBZucker.Location = new Point(91, 174);
+            TBZucker.Margin = new Padding(2);
             TBZucker.Name = "TBZucker";
             TBZucker.PlaceholderText = "g";
-            TBZucker.Size = new Size(200, 39);
+            TBZucker.Size = new Size(155, 31);
             TBZucker.TabIndex = 18;
             // 
             // TBKohlenhydrate
             // 
-            TBKohlenhydrate.Location = new Point(186, 178);
+            TBKohlenhydrate.Location = new Point(143, 139);
+            TBKohlenhydrate.Margin = new Padding(2);
             TBKohlenhydrate.Name = "TBKohlenhydrate";
             TBKohlenhydrate.PlaceholderText = "g";
-            TBKohlenhydrate.Size = new Size(200, 39);
+            TBKohlenhydrate.Size = new Size(155, 31);
             TBKohlenhydrate.TabIndex = 17;
             // 
             // TBDavonGesaettigteFettsaeuren
             // 
-            TBDavonGesaettigteFettsaeuren.Location = new Point(265, 133);
+            TBDavonGesaettigteFettsaeuren.Location = new Point(204, 104);
+            TBDavonGesaettigteFettsaeuren.Margin = new Padding(2);
             TBDavonGesaettigteFettsaeuren.Name = "TBDavonGesaettigteFettsaeuren";
             TBDavonGesaettigteFettsaeuren.PlaceholderText = "g";
-            TBDavonGesaettigteFettsaeuren.Size = new Size(200, 39);
+            TBDavonGesaettigteFettsaeuren.Size = new Size(155, 31);
             TBDavonGesaettigteFettsaeuren.TabIndex = 16;
             // 
             // TBFett
             // 
-            TBFett.Location = new Point(118, 88);
+            TBFett.Location = new Point(91, 69);
+            TBFett.Margin = new Padding(2);
             TBFett.Name = "TBFett";
             TBFett.PlaceholderText = "g";
-            TBFett.Size = new Size(200, 39);
+            TBFett.Size = new Size(155, 31);
             TBFett.TabIndex = 15;
             // 
             // TBKalorien
             // 
-            TBKalorien.Location = new Point(118, 43);
+            TBKalorien.Location = new Point(91, 34);
+            TBKalorien.Margin = new Padding(2);
             TBKalorien.Name = "TBKalorien";
             TBKalorien.PlaceholderText = "kcal";
-            TBKalorien.Size = new Size(200, 39);
+            TBKalorien.Size = new Size(155, 31);
             TBKalorien.TabIndex = 14;
             // 
             // LBEiweiss
             // 
             LBEiweiss.AutoSize = true;
-            LBEiweiss.Location = new Point(6, 268);
+            LBEiweiss.Location = new Point(5, 209);
+            LBEiweiss.Margin = new Padding(2, 0, 2, 0);
             LBEiweiss.Name = "LBEiweiss";
-            LBEiweiss.Size = new Size(86, 32);
+            LBEiweiss.Size = new Size(65, 25);
             LBEiweiss.TabIndex = 13;
             LBEiweiss.Text = "Eiweiß:";
             // 
             // LBDavonGesaettigteFettsaeuren
             // 
             LBDavonGesaettigteFettsaeuren.AutoSize = true;
-            LBDavonGesaettigteFettsaeuren.Location = new Point(6, 130);
+            LBDavonGesaettigteFettsaeuren.Location = new Point(5, 102);
+            LBDavonGesaettigteFettsaeuren.Margin = new Padding(2, 0, 2, 0);
             LBDavonGesaettigteFettsaeuren.Name = "LBDavonGesaettigteFettsaeuren";
-            LBDavonGesaettigteFettsaeuren.Size = new Size(253, 32);
+            LBDavonGesaettigteFettsaeuren.Size = new Size(190, 25);
             LBDavonGesaettigteFettsaeuren.TabIndex = 11;
             LBDavonGesaettigteFettsaeuren.Text = "davon ges. Fettsäuren:";
             // 
             // LBZucker
             // 
             LBZucker.AutoSize = true;
-            LBZucker.Location = new Point(6, 223);
+            LBZucker.Location = new Point(5, 174);
+            LBZucker.Margin = new Padding(2, 0, 2, 0);
             LBZucker.Name = "LBZucker";
-            LBZucker.Size = new Size(91, 32);
+            LBZucker.Size = new Size(68, 25);
             LBZucker.TabIndex = 9;
             LBZucker.Text = "Zucker:";
             // 
             // LBFett
             // 
             LBFett.AutoSize = true;
-            LBFett.Location = new Point(6, 88);
+            LBFett.Location = new Point(5, 69);
+            LBFett.Margin = new Padding(2, 0, 2, 0);
             LBFett.Name = "LBFett";
-            LBFett.Size = new Size(60, 32);
+            LBFett.Size = new Size(46, 25);
             LBFett.TabIndex = 7;
             LBFett.Text = "Fett:";
             // 
             // LBKohlenhydrate
             // 
             LBKohlenhydrate.AutoSize = true;
-            LBKohlenhydrate.Location = new Point(6, 178);
+            LBKohlenhydrate.Location = new Point(5, 139);
+            LBKohlenhydrate.Margin = new Padding(2, 0, 2, 0);
             LBKohlenhydrate.Name = "LBKohlenhydrate";
-            LBKohlenhydrate.Size = new Size(174, 32);
+            LBKohlenhydrate.Size = new Size(130, 25);
             LBKohlenhydrate.TabIndex = 5;
             LBKohlenhydrate.Text = "Kohlenhydrate:";
             // 
             // LBKalorien
             // 
             LBKalorien.AutoSize = true;
-            LBKalorien.Location = new Point(6, 43);
+            LBKalorien.Location = new Point(5, 34);
+            LBKalorien.Margin = new Padding(2, 0, 2, 0);
             LBKalorien.Name = "LBKalorien";
-            LBKalorien.Size = new Size(106, 32);
+            LBKalorien.Size = new Size(79, 25);
             LBKalorien.TabIndex = 0;
             LBKalorien.Text = "Kalorien:";
             // 
@@ -272,26 +290,32 @@
             // 
             LBErgebnis.FormattingEnabled = true;
             LBErgebnis.HorizontalScrollbar = true;
-            LBErgebnis.Location = new Point(6, 51);
+            LBErgebnis.ItemHeight = 25;
+            LBErgebnis.Location = new Point(9, 236);
+            LBErgebnis.Margin = new Padding(2);
             LBErgebnis.Name = "LBErgebnis";
-            LBErgebnis.Size = new Size(438, 452);
+            LBErgebnis.Size = new Size(338, 354);
             LBErgebnis.TabIndex = 6;
+            LBErgebnis.SelectedIndexChanged += LBErgebnis_SelectedIndexChanged;
             // 
             // BTSuche
             // 
-            BTSuche.Location = new Point(274, 6);
+            BTSuche.Location = new Point(211, 5);
+            BTSuche.Margin = new Padding(2);
             BTSuche.Name = "BTSuche";
-            BTSuche.Size = new Size(170, 39);
+            BTSuche.Size = new Size(131, 30);
             BTSuche.TabIndex = 5;
             BTSuche.Text = "Suchen";
             BTSuche.UseVisualStyleBackColor = true;
+            BTSuche.Click += BTSuche_Click;
             // 
             // TBSuche
             // 
-            TBSuche.Location = new Point(6, 6);
+            TBSuche.Location = new Point(5, 5);
+            TBSuche.Margin = new Padding(2);
             TBSuche.Name = "TBSuche";
             TBSuche.PlaceholderText = "Suche nach z.B. Apfel";
-            TBSuche.Size = new Size(260, 39);
+            TBSuche.Size = new Size(201, 31);
             TBSuche.TabIndex = 4;
             // 
             // TPRezepte
@@ -691,12 +715,11 @@
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
             ClientSize = new Size(2118, 1035);
             Controls.Add(TCAnzeige);
-            Margin = new Padding(4);
             Name = "Form1";
             Text = "iFood-Lebensmittelverwaltung";
             TCAnzeige.ResumeLayout(false);
