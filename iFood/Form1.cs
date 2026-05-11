@@ -63,7 +63,7 @@ namespace iFood
                     FOREIGN KEY (UtensilId) REFERENCES Utensilien(UtensilId)
                 )");
             //SQLAdd();
-            SQLInComboBox();
+            //SQLInComboBox();
         }
 
 
@@ -87,7 +87,7 @@ namespace iFood
                 int Id = reader.GetInt32(0);
                 string Name = reader.GetString(1);
                 //string Hersteller = reader.GetString(2);
-                CBRezeptAuswahl.Items.Add(Id + " " + Name + " ");
+                //CBRezeptAuswahl.Items.Add(Id + " " + Name + " ");
             }
         }
         private void Suche()
@@ -115,11 +115,5 @@ namespace iFood
                         LBErgebnis.Items.Add(t);
             }
         }
-
-        private void BTSuche_Click(object sender, EventArgs e)
-        {
-            Suche();
-        }
-
     }
 }
