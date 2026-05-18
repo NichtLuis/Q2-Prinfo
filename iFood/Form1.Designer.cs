@@ -327,6 +327,7 @@
             TBSuche.PlaceholderText = "Suche nach z.B. Apfel";
             TBSuche.Size = new Size(201, 31);
             TBSuche.TabIndex = 4;
+            TBSuche.TextChanged += BTSuche_Click;
             // 
             // TPRezepte
             // 
