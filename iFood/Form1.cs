@@ -73,6 +73,8 @@ namespace iFood
                 )");
             //SQLAdd();
             //SQLInComboBox();
+            BTUtensielienHinzufuegen.Click += BTHinzufuegen_Click;
+            BTUtensilienLoeschen.Click += BTUtensilienLoeschen_Click;
         }
 
 
@@ -273,11 +275,79 @@ namespace iFood
 
         private void BTDatenLoeschen_Click(object sender, EventArgs e)
         {
-            foreach(TextBox TB in TBNaherwerte)
+            foreach (TextBox TB in TBNaherwerte)
             {
                 TB.Text = "";
             }
             TBSuche.Text = "";
+        }
+
+
+
+
+
+
+
+
+        private void UtensilienListeLaden()
+        {
+            LBUtensilien.Items.Clear();
+            CBUtensilienHinzufuegen.Items.Clear();
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Name FROM Utensilien ORDER BY Name";
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                string n = reader.GetString(0);
+                LBUtensilien.Items.Add(n);
+                CBUtensilienHinzufuegen.Items.Add(n);
+            }
+        }
+
+        private void BTHinzufuegen_Click(object sender, EventArgs e)
+        {
+            string name = TBUtensielName.Text.Trim();
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Bitte geben Sie einen Namen für das Utensil ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)";
+            cmd.Parameters.AddWithValue("$Name", name);
+            int rows = cmd.ExecuteNonQuery();    // nur einmal
+            if (rows == 0)
+                MessageBox.Show($"'{name}' existiert bereits.", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            else
+            {
+                TBUtensielName.Clear();
+                UtensilienListeLaden();
+            }
+        }
+
+        private void BTUtensilienLoeschen_Click(object sender, EventArgs e)
+        {
+            string name = Convert.ToString(LBUtensilien.SelectedItem);
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Bitte wählen Sie ein Utensil aus der Liste aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM Utensilien WHERE Name = $Name";
+            cmd.Parameters.AddWithValue("$Name", name);
+            int rows = cmd.ExecuteNonQuery();
+            if (rows == 0)
+            {
+                MessageBox.Show("Das Utensil konnte nicht gelöscht werden.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                UtensilienListeLaden();
+            }
         }
     }
 }
