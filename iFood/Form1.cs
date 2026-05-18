@@ -6,6 +6,16 @@ namespace iFood
     {
         private DbManager iFoodDb;
         List<TextBox> TBNaherwerte = new List<TextBox>();
+        private static readonly Dictionary<string, double> Toleranzen = new()
+        {
+            { "Kalorien",      25.0 },  // kcal
+            { "Eiweiss",        2.0 },  // g
+            { "Fett",           2.0 },  // g
+            { "DavonGesFettsaeuren",           2.0 },  // g
+            { "Kohlenhydrate",  2.0 },  // g
+            { "DavonZucker",         2.0 },  // g
+            { "Salz",           0.2 },  // g
+        };
 
         public Form1()
         {
@@ -74,8 +84,6 @@ namespace iFood
             //SQLAdd();
             //SQLInComboBox();
         }
-
-
         private void SQLAdd()
         {
             using var conn = iFoodDb.OpenConnection();
@@ -138,114 +146,137 @@ namespace iFood
             cmd.CommandText = "SELECT Kalorien FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBKalorien.Text = result == null ? "" : result.ToString();
+            TBKalorien.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT Kohlenhydrate FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBKohlenhydrate.Text = result == null ? "" : result.ToString();
+            TBKohlenhydrate.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT DavonZucker FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBZucker.Text = result == null ? "" : result.ToString();
+            TBZucker.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT Fett FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBFett.Text = result == null ? "" : result.ToString();
+            TBFett.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT DavonGesFettsaeuren FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBDavonGesaettigteFettsaeuren.Text = result == null ? "" : result.ToString();
+            TBDavonGesaettigteFettsaeuren.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT Eiweiss FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBEiweiss.Text = result == null ? "" : result.ToString();
+            TBEiweiss.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT Salz FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
             result = cmd.ExecuteScalar();
-            TBSalz.Text = result == null ? "" : result.ToString();
+            TBSalz.Text = result == null || result == DBNull.Value
+                ? ""
+                : Math.Round(Convert.ToDouble(result), 1).ToString();
 
         }
         private void BTSuche_Click(object sender, EventArgs e)
         {
-            LBErgebnis.Items.Clear();
-            bool block = false;
-            foreach (TextBox TB in TBNaherwerte)
+            if (TBSuche.Text.Length > 2)
             {
-                if (TB.Text == "")
+                LBErgebnis.Items.Clear();
+                bool block = false;
+                foreach (TextBox TB in TBNaherwerte)
                 {
-                    block = false;
+                    if (TB.Text == "")
+                    {
+                        block = false;
+                    }
+                    else
+                    {
+                        block = true;
+                        break;
+                    }
                 }
-                else
+                if (block == false)  // Suche Nach name
                 {
-                    block = true;
-                    break;
+                    SQLInComboBox();
+                }
+                if (block == true)   //Suche nach Naehrwert
+                {
+                    string gesucht = null;
+                    double anzahl = 0;
+                    if (TBKalorien.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBKalorien.Text);
+                        gesucht = "Kalorien";
+                    }
+                    if (TBKohlenhydrate.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBKohlenhydrate.Text);
+                        gesucht = "Kohlenhydrate";
+                    }
+                    if (TBZucker.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBZucker.Text);
+                        gesucht = "DavonZucker";
+                    }
+                    if (TBFett.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBFett.Text);
+                        gesucht = "Fett";
+                    }
+                    if (TBDavonGesaettigteFettsaeuren.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBDavonGesaettigteFettsaeuren.Text);
+                        gesucht = "DavonGesFettsaeuren";
+                    }
+                    if (TBEiweiss.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBEiweiss.Text);
+                        gesucht = "Eiweiss";
+                    }
+                    if (TBSalz.Text != "")
+                    {
+                        anzahl = Convert.ToDouble(TBSalz.Text);
+                        gesucht = "Salz";
+                    }
+                    SucheNachAtt(gesucht, anzahl);
                 }
             }
-            if (block == false)  // Suche Nach name
+            else
             {
-                SQLInComboBox();
-            }
-            if (block == true)   //Suche nach Naehrwert
-            {
-                string gesucht = null;
-                int anzahl = 0;
-                if (TBKalorien.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBKalorien.Text);
-                    gesucht = "Kalorien";
-                }
-                if (TBKohlenhydrate.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBKohlenhydrate.Text);
-                    gesucht = "Kohlenhydrate";
-                }
-                if (TBZucker.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBZucker.Text);
-                    gesucht = "DavonZucker";
-                }
-                if (TBFett.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBFett.Text);
-                    gesucht = "Fett";
-                }
-                if (TBDavonGesaettigteFettsaeuren.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBDavonGesaettigteFettsaeuren.Text);
-                    gesucht = "DavonGesFettsaeuren";
-                }
-                if (TBEiweiss.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBEiweiss.Text);
-                    gesucht = "Eiweiss";
-                }
-                if (TBSalz.Text != "")
-                {
-                    anzahl = Convert.ToInt32(TBSalz.Text);
-                    gesucht = "Salz";
-                }
-                SucheNachAtt(gesucht, anzahl);
+                LBErgebnis.Items.Clear();
             }
         }
-        private void SucheNachAtt(string Attribute, int Anzahl)
+        private void SucheNachAtt(string Attribute, double Anzahl)
         {
             // Whitelist — nur diese Spaltennamen sind erlaubt
             var erlaubt = new HashSet<string> {
         "Kalorien", "Kohlenhydrate", "DavonZucker",
         "Fett", "DavonGesFettsaeuren", "Eiweiss", "Salz"
     };
+            if (!Toleranzen.TryGetValue(Attribute, out var toleranz))
+                throw new ArgumentException("Ungültiges Attribut");
             if (!erlaubt.Contains(Attribute)) return;
 
             using var conn = iFoodDb.OpenConnection();
@@ -254,8 +285,9 @@ namespace iFood
         SELECT L.Name
         FROM Lebensmittel L
         JOIN Naehrwerte N ON N.LebensmittelID = L.Id
-        WHERE N.{Attribute} = $wert";
+        WHERE N.{Attribute} BETWEEN $wert - $tol AND $wert + $tol";
             cmd.Parameters.AddWithValue("$wert", Anzahl);
+            cmd.Parameters.AddWithValue("$tol", toleranz);
 
             LBErgebnis.Items.Clear();
             using var reader = cmd.ExecuteReader();
@@ -264,16 +296,14 @@ namespace iFood
                 LBErgebnis.Items.Add(reader.GetString(0));
             }
         }
-
         private void LBErgebnis_SelectedIndexChanged(object sender, EventArgs e)
         {
             string Item = Convert.ToString(LBErgebnis.SelectedItem);
             Ausgabe(Item);
         }
-
         private void BTDatenLoeschen_Click(object sender, EventArgs e)
         {
-            foreach(TextBox TB in TBNaherwerte)
+            foreach (TextBox TB in TBNaherwerte)
             {
                 TB.Text = "";
             }
