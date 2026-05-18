@@ -311,14 +311,6 @@ namespace iFood
             }
             TBSuche.Text = "";
         }
-
-
-
-
-
-
-
-
         private void UtensilienListeLaden()
         {
             LBUtensilien.Items.Clear();
@@ -334,7 +326,6 @@ namespace iFood
                 CBUtensilienHinzufuegen.Items.Add(n);
             }
         }
-
         private void BTHinzufuegen_Click(object sender, EventArgs e)
         {
             string name = TBUtensielName.Text.Trim();
@@ -356,7 +347,6 @@ namespace iFood
                 UtensilienListeLaden();
             }
         }
-
         private void BTUtensilienLoeschen_Click(object sender, EventArgs e)
         {
             string name = Convert.ToString(LBUtensilien.SelectedItem);
