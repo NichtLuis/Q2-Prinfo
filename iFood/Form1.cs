@@ -203,6 +203,11 @@ namespace iFood
         }
         private void BTSuche_Click(object sender, EventArgs e)
         {
+            foreach (TextBox TB in TBNaherwerte)
+            {
+                TB.Text = "";
+            }
+            TBSuche.Text = "";
             if (TBSuche.Text.Length > 2)
             {
                 LBErgebnis.Items.Clear();
