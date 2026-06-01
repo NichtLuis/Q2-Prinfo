@@ -31,7 +31,7 @@ namespace iFood
                     TBNaherwerte.Add(Obj as TextBox);
                 }
             }
-            // Tabellen anlegen (nur beim ersten Start nötig, schadet aber nicht)
+            // Tabellen anlegen (nur beim ersten Start nï¿½tig, schadet aber nicht)
             iFoodDb.Execute(@"
                 CREATE TABLE IF NOT EXISTS Lebensmittel (
                     Id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -205,11 +205,13 @@ namespace iFood
         }
         private void BTSuche_Click(object sender, EventArgs e)
         {
-            foreach (TextBox TB in TBNaherwerte)
+            if (TBSuche.Text != "")
             {
-                TB.Text = "";
+                foreach (TextBox TB in TBNaherwerte)
+                {
+                    TB.Text = "";
+                }
             }
-            TBSuche.Text = "";
             if (TBSuche.Text.Length > 2)
             {
                 LBErgebnis.Items.Clear();
@@ -279,13 +281,13 @@ namespace iFood
         }
         private void SucheNachAtt(string Attribute, double Anzahl)
         {
-            // Whitelist — nur diese Spaltennamen sind erlaubt
+            // Whitelist ï¿½ nur diese Spaltennamen sind erlaubt
             var erlaubt = new HashSet<string> {
         "Kalorien", "Kohlenhydrate", "DavonZucker",
         "Fett", "DavonGesFettsaeuren", "Eiweiss", "Salz"
     };
             if (!Toleranzen.TryGetValue(Attribute, out var toleranz))
-                throw new ArgumentException("Ungültiges Attribut");
+                throw new ArgumentException("Ungï¿½ltiges Attribut");
             if (!erlaubt.Contains(Attribute)) return;
 
             using var conn = iFoodDb.OpenConnection();
@@ -338,12 +340,12 @@ namespace iFood
             string name = TBUtensielName.Text.Trim();
             if (string.IsNullOrEmpty(name))
             {
-                MessageBox.Show("Bitte geben Sie einen Namen für das Utensil ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Bitte geben Sie einen Namen fï¿½r das Utensil ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            using var conn = iFoodDb.OpenConnection(); // Verbindung öffnen
+            using var conn = iFoodDb.OpenConnection(); // Verbindung ï¿½ffnen
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)"; // Verhindert doppelte Einträge
+            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)"; // Verhindert doppelte Eintrï¿½ge
             cmd.Parameters.AddWithValue("$Name", name);
             int rows = cmd.ExecuteNonQuery();    // nur einmal
             if (rows == 0)
@@ -359,7 +361,7 @@ namespace iFood
             string name = Convert.ToString(LBUtensilien.SelectedItem);
             if (string.IsNullOrEmpty(name))
             {
-                MessageBox.Show("Bitte wählen Sie ein Utensil aus der Liste aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Bitte wï¿½hlen Sie ein Utensil aus der Liste aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             using var conn = iFoodDb.OpenConnection();
@@ -369,7 +371,7 @@ namespace iFood
             int rows = cmd.ExecuteNonQuery();
             if (rows == 0)
             {
-                MessageBox.Show("Das Utensil konnte nicht gelöscht werden.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Das Utensil konnte nicht gelï¿½scht werden.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
@@ -408,7 +410,7 @@ namespace iFood
 
                 if (result == null)
                 {
-                    MessageBox.Show("Das ausgewählte Utensil existiert nicht.", "Fehler",
+                    MessageBox.Show("Das ausgewï¿½hlte Utensil existiert nicht.", "Fehler",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
