@@ -17,6 +17,8 @@ namespace iFood
             { "Salz",           0.2 },  // g
         };
 
+        private int _aktuellesRezeptId = -1;
+
         public Form1()
         {
             InitializeComponent();
@@ -339,9 +341,9 @@ namespace iFood
                 MessageBox.Show("Bitte geben Sie einen Namen für das Utensil ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            using var conn = iFoodDb.OpenConnection();
+            using var conn = iFoodDb.OpenConnection(); // Verbindung öffnen
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)";
+            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)"; // Verhindert doppelte Einträge
             cmd.Parameters.AddWithValue("$Name", name);
             int rows = cmd.ExecuteNonQuery();    // nur einmal
             if (rows == 0)
@@ -372,6 +374,54 @@ namespace iFood
             else
             {
                 UtensilienListeLaden();
+            }
+        }
+
+        private void BTDatenEntfernen_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BTDatenHinzufuegen_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BTRezepteUtensilienHinzufuegen_Click(object sender, EventArgs e)
+        {
+            if ((CBUtensilienHinzufuegen.SelectedItem == null)) return;
+
+            string utensilName = CBUtensilienHinzufuegen.SelectedItem.ToString();
+            if (!string.IsNullOrEmpty(utensilName))
+            {
+                if (_aktuellesRezeptId < 0)
+                {
+                    MessageBox.Show("Bitte zuerst das Rezept speichern.", "Hinweis",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                using var conn = iFoodDb.OpenConnection();
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT UtensilId FROM Utensilien WHERE Name = $Name";
+                cmd.Parameters.AddWithValue("$Name", utensilName);
+                var result = cmd.ExecuteScalar();
+
+                if (result == null)
+                {
+                    MessageBox.Show("Das ausgewählte Utensil existiert nicht.", "Fehler",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                cmd.Parameters.Clear();
+                cmd.CommandText = @"
+                    INSERT OR IGNORE INTO RezeptUtensilien (RezeptId, UtensilId)
+                    VALUES ($RezeptId, $UtensilId)";
+                cmd.Parameters.AddWithValue("$RezeptId", _aktuellesRezeptId);
+                cmd.Parameters.AddWithValue("$UtensilId", Convert.ToInt32(result));
+                int rows = cmd.ExecuteNonQuery();
+
+                //GBRezepteUtensilienLaden();
             }
         }
     }
