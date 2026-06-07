@@ -126,17 +126,18 @@
             TPLebensmittel.Location = new Point(4, 34);
             TPLebensmittel.Margin = new Padding(2, 2, 2, 2);
             TPLebensmittel.Name = "TPLebensmittel";
-            TPLebensmittel.Padding = new Padding(4);
-            TPLebensmittel.Size = new Size(2737, 1255);
+            TPLebensmittel.Padding = new Padding(3, 3, 3, 3);
+            TPLebensmittel.Size = new Size(1730, 985);
             TPLebensmittel.TabIndex = 0;
             TPLebensmittel.Text = "Lebensmittel";
             TPLebensmittel.UseVisualStyleBackColor = true;
             // 
             // BTDatenEntfernen
             // 
-            BTDatenEntfernen.Location = new Point(462, 528);
+            BTDatenEntfernen.Location = new Point(355, 412);
+            BTDatenEntfernen.Margin = new Padding(2, 2, 2, 2);
             BTDatenEntfernen.Name = "BTDatenEntfernen";
-            BTDatenEntfernen.Size = new Size(542, 78);
+            BTDatenEntfernen.Size = new Size(417, 61);
             BTDatenEntfernen.TabIndex = 10;
             BTDatenEntfernen.Text = "Lebensmittel entfernen";
             BTDatenEntfernen.UseVisualStyleBackColor = true;
@@ -144,9 +145,10 @@
             // 
             // BTDatenHinzufuegen
             // 
-            BTDatenHinzufuegen.Location = new Point(727, 444);
+            BTDatenHinzufuegen.Location = new Point(559, 347);
+            BTDatenHinzufuegen.Margin = new Padding(2, 2, 2, 2);
             BTDatenHinzufuegen.Name = "BTDatenHinzufuegen";
-            BTDatenHinzufuegen.Size = new Size(277, 78);
+            BTDatenHinzufuegen.Size = new Size(213, 61);
             BTDatenHinzufuegen.TabIndex = 9;
             BTDatenHinzufuegen.Text = "Lebensmittel hinzufuegen";
             BTDatenHinzufuegen.UseVisualStyleBackColor = true;
@@ -154,8 +156,7 @@
             // 
             // BTDatenLoeschen
             // 
-            BTDatenLoeschen.Location = new Point(461, 445);
-            BTDatenLoeschen.Margin = new Padding(4);
+            BTDatenLoeschen.Location = new Point(355, 348);
             BTDatenLoeschen.Name = "BTDatenLoeschen";
             BTDatenLoeschen.Size = new Size(199, 61);
             BTDatenLoeschen.TabIndex = 8;
@@ -363,11 +364,10 @@
             TPRezepte.Controls.Add(BTRezeptSpeichern);
             TPRezepte.Controls.Add(BTRezepteNeu);
             TPRezepte.Controls.Add(LBRezepte);
-            TPRezepte.Location = new Point(8, 46);
-            TPRezepte.Margin = new Padding(4);
+            TPRezepte.Location = new Point(4, 34);
             TPRezepte.Name = "TPRezepte";
-            TPRezepte.Padding = new Padding(4);
-            TPRezepte.Size = new Size(2737, 1255);
+            TPRezepte.Padding = new Padding(3, 3, 3, 3);
+            TPRezepte.Size = new Size(2110, 985);
             TPRezepte.TabIndex = 1;
             TPRezepte.Text = "Rezepte";
             TPRezepte.UseVisualStyleBackColor = true;
@@ -380,31 +380,26 @@
             GBRezepteUtensilien.Controls.Add(BTRezepteUtensilienEntfernen);
             GBRezepteUtensilien.Controls.Add(LBRezepteUtensilien);
             GBRezepteUtensilien.Controls.Add(LBUtensilienImRezept);
-            GBRezepteUtensilien.Location = new Point(1676, 8);
-            GBRezepteUtensilien.Margin = new Padding(4);
+            GBRezepteUtensilien.Location = new Point(1289, 6);
             GBRezepteUtensilien.Name = "GBRezepteUtensilien";
-            GBRezepteUtensilien.Padding = new Padding(4);
-            GBRezepteUtensilien.Size = new Size(725, 948);
+            GBRezepteUtensilien.Size = new Size(558, 741);
             GBRezepteUtensilien.TabIndex = 6;
             GBRezepteUtensilien.TabStop = false;
             GBRezepteUtensilien.Text = "Utensilien:";
             // 
             // BTRezepteUtensilienHinzufuegen
             // 
-            BTRezepteUtensilienHinzufuegen.Location = new Point(358, 429);
-            BTRezepteUtensilienHinzufuegen.Margin = new Padding(4);
+            BTRezepteUtensilienHinzufuegen.Location = new Point(275, 335);
             BTRezepteUtensilienHinzufuegen.Name = "BTRezepteUtensilienHinzufuegen";
             BTRezepteUtensilienHinzufuegen.Size = new Size(277, 46);
             BTRezepteUtensilienHinzufuegen.TabIndex = 5;
             BTRezepteUtensilienHinzufuegen.Text = "Hinzufügen";
             BTRezepteUtensilienHinzufuegen.UseVisualStyleBackColor = true;
-            BTRezepteUtensilienHinzufuegen.Click += BTRezepteUtensilienHinzufuegen_Click;
             // 
             // CBUtensilienHinzufuegen
             // 
             CBUtensilienHinzufuegen.FormattingEnabled = true;
-            CBUtensilienHinzufuegen.Location = new Point(358, 90);
-            CBUtensilienHinzufuegen.Margin = new Padding(4);
+            CBUtensilienHinzufuegen.Location = new Point(275, 70);
             CBUtensilienHinzufuegen.Name = "CBUtensilienHinzufuegen";
             CBUtensilienHinzufuegen.Size = new Size(277, 33);
             CBUtensilienHinzufuegen.TabIndex = 4;
@@ -420,8 +415,7 @@
             // 
             // BTRezepteUtensilienEntfernen
             // 
-            BTRezepteUtensilienEntfernen.Location = new Point(8, 430);
-            BTRezepteUtensilienEntfernen.Margin = new Padding(4);
+            BTRezepteUtensilienEntfernen.Location = new Point(6, 336);
             BTRezepteUtensilienEntfernen.Name = "BTRezepteUtensilienEntfernen";
             BTRezepteUtensilienEntfernen.Size = new Size(240, 46);
             BTRezepteUtensilienEntfernen.TabIndex = 2;
@@ -432,8 +426,8 @@
             // 
             LBRezepteUtensilien.FormattingEnabled = true;
             LBRezepteUtensilien.HorizontalScrollbar = true;
-            LBRezepteUtensilien.Location = new Point(8, 90);
-            LBRezepteUtensilien.Margin = new Padding(4);
+            LBRezepteUtensilien.ItemHeight = 25;
+            LBRezepteUtensilien.Location = new Point(6, 70);
             LBRezepteUtensilien.Name = "LBRezepteUtensilien";
             LBRezepteUtensilien.Size = new Size(240, 254);
             LBRezepteUtensilien.TabIndex = 1;
@@ -461,19 +455,16 @@
             GBRezepteZutaten.Controls.Add(LBRezepteZutatenHinzufuegen);
             GBRezepteZutaten.Controls.Add(LBZutaten);
             GBRezepteZutaten.Controls.Add(LBRezepteZutatenImRezept);
-            GBRezepteZutaten.Location = new Point(601, 436);
-            GBRezepteZutaten.Margin = new Padding(4);
+            GBRezepteZutaten.Location = new Point(462, 341);
             GBRezepteZutaten.Name = "GBRezepteZutaten";
-            GBRezepteZutaten.Padding = new Padding(4);
-            GBRezepteZutaten.Size = new Size(1067, 520);
+            GBRezepteZutaten.Size = new Size(821, 406);
             GBRezepteZutaten.TabIndex = 5;
             GBRezepteZutaten.TabStop = false;
             GBRezepteZutaten.Text = "Zutaten:";
             // 
             // BTZutatenHinzufuegen
             // 
-            BTZutatenHinzufuegen.Location = new Point(358, 453);
-            BTZutatenHinzufuegen.Margin = new Padding(4);
+            BTZutatenHinzufuegen.Location = new Point(275, 354);
             BTZutatenHinzufuegen.Name = "BTZutatenHinzufuegen";
             BTZutatenHinzufuegen.Size = new Size(414, 46);
             BTZutatenHinzufuegen.TabIndex = 11;
@@ -482,8 +473,7 @@
             // 
             // TBZutatenMenge
             // 
-            TBZutatenMenge.Location = new Point(775, 369);
-            TBZutatenMenge.Margin = new Padding(4);
+            TBZutatenMenge.Location = new Point(596, 288);
             TBZutatenMenge.Name = "TBZutatenMenge";
             TBZutatenMenge.Size = new Size(93, 31);
             TBZutatenMenge.TabIndex = 10;
@@ -499,8 +489,7 @@
             // 
             // TBZutatenAnzahl
             // 
-            TBZutatenAnzahl.Location = new Point(484, 369);
-            TBZutatenAnzahl.Margin = new Padding(4);
+            TBZutatenAnzahl.Location = new Point(372, 288);
             TBZutatenAnzahl.Name = "TBZutatenAnzahl";
             TBZutatenAnzahl.Size = new Size(47, 31);
             TBZutatenAnzahl.TabIndex = 8;
@@ -518,16 +507,15 @@
             // 
             LBZutatenHinzufuegen.FormattingEnabled = true;
             LBZutatenHinzufuegen.HorizontalScrollbar = true;
-            LBZutatenHinzufuegen.Location = new Point(358, 151);
-            LBZutatenHinzufuegen.Margin = new Padding(4);
+            LBZutatenHinzufuegen.ItemHeight = 25;
+            LBZutatenHinzufuegen.Location = new Point(275, 118);
             LBZutatenHinzufuegen.Name = "LBZutatenHinzufuegen";
             LBZutatenHinzufuegen.Size = new Size(414, 154);
             LBZutatenHinzufuegen.TabIndex = 6;
             // 
             // BTRezepteZutatenSuchen
             // 
-            BTRezepteZutatenSuchen.Location = new Point(749, 84);
-            BTRezepteZutatenSuchen.Margin = new Padding(4);
+            BTRezepteZutatenSuchen.Location = new Point(576, 66);
             BTRezepteZutatenSuchen.Name = "BTRezepteZutatenSuchen";
             BTRezepteZutatenSuchen.Size = new Size(113, 46);
             BTRezepteZutatenSuchen.TabIndex = 5;
@@ -536,8 +524,7 @@
             // 
             // TBRezepteZutatenHinzufuegen
             // 
-            TBRezepteZutatenHinzufuegen.Location = new Point(358, 90);
-            TBRezepteZutatenHinzufuegen.Margin = new Padding(4);
+            TBRezepteZutatenHinzufuegen.Location = new Point(275, 70);
             TBRezepteZutatenHinzufuegen.Name = "TBRezepteZutatenHinzufuegen";
             TBRezepteZutatenHinzufuegen.PlaceholderText = "z.B. Apfel";
             TBRezepteZutatenHinzufuegen.Size = new Size(295, 31);
@@ -545,8 +532,7 @@
             // 
             // BTRezepteZutatenEntfernen
             // 
-            BTRezepteZutatenEntfernen.Location = new Point(8, 307);
-            BTRezepteZutatenEntfernen.Margin = new Padding(4);
+            BTRezepteZutatenEntfernen.Location = new Point(6, 240);
             BTRezepteZutatenEntfernen.Name = "BTRezepteZutatenEntfernen";
             BTRezepteZutatenEntfernen.Size = new Size(152, 46);
             BTRezepteZutatenEntfernen.TabIndex = 3;
@@ -566,8 +552,8 @@
             // 
             LBZutaten.FormattingEnabled = true;
             LBZutaten.HorizontalScrollbar = true;
-            LBZutaten.Location = new Point(8, 90);
-            LBZutaten.Margin = new Padding(4);
+            LBZutaten.ItemHeight = 25;
+            LBZutaten.Location = new Point(6, 70);
             LBZutaten.Name = "LBZutaten";
             LBZutaten.Size = new Size(240, 154);
             LBZutaten.TabIndex = 1;
@@ -591,11 +577,9 @@
             GBRezepteDetails.Controls.Add(TBRezepteDetailsDauer);
             GBRezepteDetails.Controls.Add(TBRezepteDetailsName);
             GBRezepteDetails.Controls.Add(LBRezepteDetailsName);
-            GBRezepteDetails.Location = new Point(601, 8);
-            GBRezepteDetails.Margin = new Padding(4);
+            GBRezepteDetails.Location = new Point(462, 6);
             GBRezepteDetails.Name = "GBRezepteDetails";
-            GBRezepteDetails.Padding = new Padding(4);
-            GBRezepteDetails.Size = new Size(1067, 421);
+            GBRezepteDetails.Size = new Size(821, 329);
             GBRezepteDetails.TabIndex = 4;
             GBRezepteDetails.TabStop = false;
             GBRezepteDetails.Text = "Details:";
@@ -629,8 +613,7 @@
             // 
             // TBRezepteAnleitung
             // 
-            TBRezepteAnleitung.Location = new Point(176, 244);
-            TBRezepteAnleitung.Margin = new Padding(4);
+            TBRezepteAnleitung.Location = new Point(135, 191);
             TBRezepteAnleitung.Name = "TBRezepteAnleitung";
             TBRezepteAnleitung.ScrollBars = ScrollBars.Vertical;
             TBRezepteAnleitung.Size = new Size(292, 31);
@@ -638,24 +621,21 @@
             // 
             // TBRezepteDetailsPortionen
             // 
-            TBRezepteDetailsPortionen.Location = new Point(174, 187);
-            TBRezepteDetailsPortionen.Margin = new Padding(4);
+            TBRezepteDetailsPortionen.Location = new Point(134, 146);
             TBRezepteDetailsPortionen.Name = "TBRezepteDetailsPortionen";
             TBRezepteDetailsPortionen.Size = new Size(293, 31);
             TBRezepteDetailsPortionen.TabIndex = 3;
             // 
             // TBRezepteDetailsDauer
             // 
-            TBRezepteDetailsDauer.Location = new Point(123, 129);
-            TBRezepteDetailsDauer.Margin = new Padding(4);
+            TBRezepteDetailsDauer.Location = new Point(95, 101);
             TBRezepteDetailsDauer.Name = "TBRezepteDetailsDauer";
             TBRezepteDetailsDauer.Size = new Size(332, 31);
             TBRezepteDetailsDauer.TabIndex = 2;
             // 
             // TBRezepteDetailsName
             // 
-            TBRezepteDetailsName.Location = new Point(123, 72);
-            TBRezepteDetailsName.Margin = new Padding(4);
+            TBRezepteDetailsName.Location = new Point(95, 56);
             TBRezepteDetailsName.Name = "TBRezepteDetailsName";
             TBRezepteDetailsName.Size = new Size(332, 31);
             TBRezepteDetailsName.TabIndex = 1;
@@ -671,8 +651,7 @@
             // 
             // BTRezepteLoeschen
             // 
-            BTRezepteLoeschen.Location = new Point(398, 897);
-            BTRezepteLoeschen.Margin = new Padding(4);
+            BTRezepteLoeschen.Location = new Point(306, 701);
             BTRezepteLoeschen.Name = "BTRezepteLoeschen";
             BTRezepteLoeschen.Size = new Size(150, 46);
             BTRezepteLoeschen.TabIndex = 3;
@@ -681,8 +660,7 @@
             // 
             // BTRezeptSpeichern
             // 
-            BTRezeptSpeichern.Location = new Point(195, 897);
-            BTRezeptSpeichern.Margin = new Padding(4);
+            BTRezeptSpeichern.Location = new Point(150, 701);
             BTRezeptSpeichern.Name = "BTRezeptSpeichern";
             BTRezeptSpeichern.Size = new Size(150, 46);
             BTRezeptSpeichern.TabIndex = 2;
@@ -691,8 +669,7 @@
             // 
             // BTRezepteNeu
             // 
-            BTRezepteNeu.Location = new Point(8, 897);
-            BTRezepteNeu.Margin = new Padding(4);
+            BTRezepteNeu.Location = new Point(6, 701);
             BTRezepteNeu.Name = "BTRezepteNeu";
             BTRezepteNeu.Size = new Size(138, 46);
             BTRezepteNeu.TabIndex = 1;
@@ -703,8 +680,8 @@
             // 
             LBRezepte.FormattingEnabled = true;
             LBRezepte.HorizontalScrollbar = true;
-            LBRezepte.Location = new Point(8, 8);
-            LBRezepte.Margin = new Padding(4);
+            LBRezepte.ItemHeight = 25;
+            LBRezepte.Location = new Point(6, 6);
             LBRezepte.Name = "LBRezepte";
             LBRezepte.Size = new Size(450, 679);
             LBRezepte.TabIndex = 0;
@@ -716,19 +693,17 @@
             TPUtensilien.Controls.Add(TBUtensielName);
             TPUtensilien.Controls.Add(LBUtensilienVerwalten);
             TPUtensilien.Controls.Add(LBUtensilien);
-            TPUtensilien.Location = new Point(8, 46);
-            TPUtensilien.Margin = new Padding(4);
+            TPUtensilien.Location = new Point(4, 34);
             TPUtensilien.Name = "TPUtensilien";
-            TPUtensilien.Padding = new Padding(4);
-            TPUtensilien.Size = new Size(2737, 1255);
+            TPUtensilien.Padding = new Padding(3, 3, 3, 3);
+            TPUtensilien.Size = new Size(2110, 985);
             TPUtensilien.TabIndex = 2;
             TPUtensilien.Text = "Utensilien";
             TPUtensilien.UseVisualStyleBackColor = true;
             // 
             // BTUtensilienLoeschen
             // 
-            BTUtensilienLoeschen.Location = new Point(524, 475);
-            BTUtensilienLoeschen.Margin = new Padding(4);
+            BTUtensilienLoeschen.Location = new Point(403, 371);
             BTUtensilienLoeschen.Name = "BTUtensilienLoeschen";
             BTUtensilienLoeschen.Size = new Size(143, 46);
             BTUtensilienLoeschen.TabIndex = 4;
@@ -737,18 +712,16 @@
             // 
             // BTUtensielienHinzufuegen
             // 
-            BTUtensielienHinzufuegen.Location = new Point(321, 475);
-            BTUtensielienHinzufuegen.Margin = new Padding(4);
+            BTUtensielienHinzufuegen.Location = new Point(247, 371);
             BTUtensielienHinzufuegen.Name = "BTUtensielienHinzufuegen";
             BTUtensielienHinzufuegen.Size = new Size(150, 46);
             BTUtensielienHinzufuegen.TabIndex = 3;
-            BTUtensielienHinzufuegen.Text = "Hinzufügen";
+            BTUtensielienHinzufuegen.Text = "Hinzufügen:";
             BTUtensielienHinzufuegen.UseVisualStyleBackColor = true;
             // 
             // TBUtensielName
             // 
-            TBUtensielName.Location = new Point(8, 475);
-            TBUtensielName.Margin = new Padding(4);
+            TBUtensielName.Location = new Point(6, 371);
             TBUtensielName.Name = "TBUtensielName";
             TBUtensielName.PlaceholderText = "Name des Utensiels";
             TBUtensielName.Size = new Size(235, 31);
@@ -767,8 +740,8 @@
             // 
             LBUtensilien.FormattingEnabled = true;
             LBUtensilien.HorizontalScrollbar = true;
-            LBUtensilien.Location = new Point(8, 52);
-            LBUtensilien.Margin = new Padding(4);
+            LBUtensilien.ItemHeight = 25;
+            LBUtensilien.Location = new Point(6, 41);
             LBUtensilien.Name = "LBUtensilien";
             LBUtensilien.Size = new Size(540, 304);
             LBUtensilien.TabIndex = 0;
@@ -780,7 +753,6 @@
             AutoSize = true;
             ClientSize = new Size(1738, 1035);
             Controls.Add(TCAnzeige);
-            Margin = new Padding(4);
             Name = "Form1";
             Text = "iFood-Lebensmittelverwaltung";
             TCAnzeige.ResumeLayout(false);

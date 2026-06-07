@@ -17,8 +17,6 @@ namespace iFood
             { "Salz",           0.2 },  // g
         };
 
-        private int _aktuellesRezeptId = -1;
-
         public Form1()
         {
             InitializeComponent();
@@ -343,9 +341,9 @@ namespace iFood
                 MessageBox.Show("Bitte geben Sie einen Namen f�r das Utensil ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            using var conn = iFoodDb.OpenConnection(); // Verbindung �ffnen
+            using var conn = iFoodDb.OpenConnection();
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)"; // Verhindert doppelte Eintr�ge
+            cmd.CommandText = "INSERT OR IGNORE INTO Utensilien (Name) VALUES ($Name)";
             cmd.Parameters.AddWithValue("$Name", name);
             int rows = cmd.ExecuteNonQuery();    // nur einmal
             if (rows == 0)
@@ -378,52 +376,109 @@ namespace iFood
                 UtensilienListeLaden();
             }
         }
-
-        private void BTDatenEntfernen_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void BTDatenHinzufuegen_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void BTRezepteUtensilienHinzufuegen_Click(object sender, EventArgs e)
-        {
-            if ((CBUtensilienHinzufuegen.SelectedItem == null)) return;
-
-            string utensilName = CBUtensilienHinzufuegen.SelectedItem.ToString();
-            if (!string.IsNullOrEmpty(utensilName))
+            bool voll = true;
+            foreach (TextBox TB in TBNaherwerte)
             {
-                if (_aktuellesRezeptId < 0)
+                if (TB.Text == "")
                 {
-                    MessageBox.Show("Bitte zuerst das Rezept speichern.", "Hinweis",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    voll = false;
+                    MessageBox.Show("Es müssen alle N�hrwerte ausgefüllt sein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                }
+                else
+                {
+                }
+            }
+            if (voll == true)
+            {
+                string name = TBSuche.Text.Trim();
+                if (string.IsNullOrEmpty(name))
+                {
+                    MessageBox.Show("Bitte geben Sie einen Namen für das Lebensmittel ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                using var conn = iFoodDb.OpenConnection();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT UtensilId FROM Utensilien WHERE Name = $Name";
-                cmd.Parameters.AddWithValue("$Name", utensilName);
-                var result = cmd.ExecuteScalar();
 
-                if (result == null)
-                {
-                    MessageBox.Show("Das ausgew�hlte Utensil existiert nicht.", "Fehler",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
+                using var conn = iFoodDb.OpenConnection();
+                using var transaktion = conn.BeginTransaction();
+
+                var cmd = conn.CreateCommand();
+                cmd.Transaction = transaktion;
+                cmd.CommandText = "INSERT INTO Lebensmittel (Name) VALUES ($Name); SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("$Name", name);
+                long lebensmittelId = Convert.ToInt64(cmd.ExecuteScalar());
 
                 cmd.Parameters.Clear();
                 cmd.CommandText = @"
-                    INSERT OR IGNORE INTO RezeptUtensilien (RezeptId, UtensilId)
-                    VALUES ($RezeptId, $UtensilId)";
-                cmd.Parameters.AddWithValue("$RezeptId", _aktuellesRezeptId);
-                cmd.Parameters.AddWithValue("$UtensilId", Convert.ToInt32(result));
-                int rows = cmd.ExecuteNonQuery();
+                    INSERT INTO Naehrwerte
+                        (LebensmittelID, Kalorien, Kohlenhydrate, DavonZucker, Fett, DavonGesFettsaeuren, Eiweiss, Salz)
+                    VALUES
+                        ($LebensmittelID, $Kalorien, $Kohlenhydrate, $DavonZucker, $Fett, $DavonGesFettsaeuren, $Eiweiss, $Salz)";
+                cmd.Parameters.AddWithValue("$LebensmittelID", lebensmittelId);
+                cmd.Parameters.AddWithValue("$Kalorien", Convert.ToDouble(TBKalorien.Text));
+                cmd.Parameters.AddWithValue("$Kohlenhydrate", Convert.ToDouble(TBKohlenhydrate.Text));
+                cmd.Parameters.AddWithValue("$DavonZucker", Convert.ToDouble(TBZucker.Text));
+                cmd.Parameters.AddWithValue("$Fett", Convert.ToDouble(TBFett.Text));
+                cmd.Parameters.AddWithValue("$DavonGesFettsaeuren", Convert.ToDouble(TBDavonGesaettigteFettsaeuren.Text));
+                cmd.Parameters.AddWithValue("$Eiweiss", Convert.ToDouble(TBEiweiss.Text));
+                cmd.Parameters.AddWithValue("$Salz", Convert.ToDouble(TBSalz.Text));
+                cmd.ExecuteNonQuery();
 
-                //GBRezepteUtensilienLaden();
+                transaktion.Commit();
+
+                MessageBox.Show($"'{name}' wurde hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                foreach (TextBox TB in TBNaherwerte)
+                {
+                    TB.Text = "";
+                }
+                TBSuche.Text = "";
+            }
+        }
+        private void BTDatenEntfernen_Click(object sender, EventArgs e)
+        {
+            string name = Convert.ToString(LBErgebnis.SelectedItem);
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Bitte wählen Sie ein Lebensmittel aus der Liste aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var conn = iFoodDb.OpenConnection();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Id FROM Lebensmittel WHERE Name = $Name LIMIT 1";
+            cmd.Parameters.AddWithValue("$Name", name);
+            var result = cmd.ExecuteScalar();
+            if (result == null || result == DBNull.Value)
+            {
+                MessageBox.Show("Das Lebensmittel konnte nicht gefunden werden.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            long lebensmittelId = Convert.ToInt64(result);
+
+            using var transaktion = conn.BeginTransaction();
+
+            cmd.Transaction = transaktion;
+            cmd.Parameters.Clear();
+            cmd.CommandText = "DELETE FROM Naehrwerte WHERE LebensmittelID = $Id";
+            cmd.Parameters.AddWithValue("$Id", lebensmittelId);
+            cmd.ExecuteNonQuery();
+
+            cmd.Parameters.Clear();
+            cmd.CommandText = "DELETE FROM Lebensmittel WHERE Id = $Id";
+            cmd.Parameters.AddWithValue("$Id", lebensmittelId);
+            cmd.ExecuteNonQuery();
+
+            transaktion.Commit();
+
+            MessageBox.Show($"'{name}' wurde entfernt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            LBErgebnis.Items.Remove(name);
+            foreach (TextBox TB in TBNaherwerte)
+            {
+                TB.Text = "";
             }
         }
     }
