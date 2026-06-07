@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using System.Web;
 
 namespace iFood
@@ -537,31 +538,35 @@ namespace iFood
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                LBRezepte.Items.Add(new RezeptItem { Id = reader.GetInt64(0), Name = reader.GetString(1) });
+                LBRezepte.Items.Add(new RezeptItem { Id = reader.GetInt64(0), Name = reader.GetString(1) });// macht, dass in der ListBox die Namen der Rezepte angezeigt werden, aber intern die Ids mitgeführt werden
             }
         }
 
         private void ZutatenLaden(long rezeptId)
         {
             LBZutaten.Items.Clear();
-            using var conn = iFoodDb.OpenConnection();
-            var cmd = conn.CreateCommand();
+            SqliteConnection conn = iFoodDb.OpenConnection();
+            SqliteCommand cmd = conn.CreateCommand();
             cmd.CommandText = @"
-                SELECT L.Id, L.Name, RL.Menge
-                FROM RezeptLebensmitteln RL
-                JOIN Lebensmittel L ON L.Id = RL.LebensmittelId
-                WHERE RL.RezeptId = $id";
+        SELECT L.Id, L.Name, RL.Menge
+        FROM RezeptLebensmitteln RL
+        JOIN Lebensmittel L ON L.Id = RL.LebensmittelId
+        WHERE RL.RezeptId = $id";
             cmd.Parameters.AddWithValue("$id", rezeptId);
-            using var reader = cmd.ExecuteReader();
+            SqliteDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                LBZutaten.Items.Add(new ZutatItem
-                {
-                    LebensmittelId = reader.GetInt64(0),
-                    Name = reader.GetString(1),
-                    Menge = reader.IsDBNull(2) ? 0 : reader.GetDouble(2)
-                });
+                ZutatItem zutat = new ZutatItem();
+                zutat.LebensmittelId = reader.GetInt64(0);
+                zutat.Name = reader.GetString(1);
+                if (reader.IsDBNull(2))
+                    zutat.Menge = 0;
+                else
+                    zutat.Menge = reader.GetDouble(2);
+                LBZutaten.Items.Add(zutat);
             }
+            reader.Close();
+            conn.Close();
         }
 
         private void RezeptUtensilienLaden(long rezeptId)
@@ -584,25 +589,46 @@ namespace iFood
 
         private void LBRezepte_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (LBRezepte.SelectedItem is not RezeptItem r)
+            RezeptItem r = LBRezepte.SelectedItem as RezeptItem;
+
+            if (r == null)
                 return;
 
             aktuellesRezeptId = r.Id;
 
-            using var conn = iFoodDb.OpenConnection();
-            var cmd = conn.CreateCommand();
+            SqliteConnection conn = iFoodDb.OpenConnection();
+
+            SqliteCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT Name, Dauer, Anleitung, AnzahlPortionen FROM Rezepte WHERE Id = $id";
             cmd.Parameters.AddWithValue("$id", r.Id);
-            using (var reader = cmd.ExecuteReader())
+
+            SqliteDataReader reader = cmd.ExecuteReader();
+
+            if (reader.Read())
             {
-                if (reader.Read())
-                {
-                    TBRezepteDetailsName.Text = reader.IsDBNull(0) ? "" : reader.GetString(0);
-                    TBRezepteDetailsDauer.Text = reader.IsDBNull(1) ? "" : reader.GetInt64(1).ToString();
-                    TBRezepteAnleitung.Text = reader.IsDBNull(2) ? "" : reader.GetString(2);
-                    TBRezepteDetailsPortionen.Text = reader.IsDBNull(3) ? "" : reader.GetInt64(3).ToString();
-                }
+                if (reader.IsDBNull(0))
+                    TBRezepteDetailsName.Text = "";
+                else
+                    TBRezepteDetailsName.Text = reader.GetString(0);
+
+                if (reader.IsDBNull(1))
+                    TBRezepteDetailsDauer.Text = "";
+                else
+                    TBRezepteDetailsDauer.Text = reader.GetInt64(1).ToString();
+
+                if (reader.IsDBNull(2))
+                    TBRezepteAnleitung.Text = "";
+                else
+                    TBRezepteAnleitung.Text = reader.GetString(2);
+
+                if (reader.IsDBNull(3))
+                    TBRezepteDetailsPortionen.Text = "";
+                else
+                    TBRezepteDetailsPortionen.Text = reader.GetInt64(3).ToString();
             }
+
+            reader.Close();
+            conn.Close();
 
             ZutatenLaden(r.Id);
             RezeptUtensilienLaden(r.Id);
@@ -638,8 +664,17 @@ namespace iFood
                 return;
             }
 
-            object dauer = int.TryParse(TBRezepteDetailsDauer.Text, out var d) ? d : DBNull.Value;
-            object portionen = int.TryParse(TBRezepteDetailsPortionen.Text, out var p) ? p : DBNull.Value;
+            object dauer;
+            if (int.TryParse(TBRezepteDetailsDauer.Text, out int d))
+                dauer = d;
+            else
+                dauer = DBNull.Value;
+
+            object portionen;
+            if (int.TryParse(TBRezepteDetailsPortionen.Text, out int p))
+                portionen = p;
+            else
+                portionen = DBNull.Value;
             string anleitung = TBRezepteAnleitung.Text;
 
             using var conn = iFoodDb.OpenConnection();
@@ -948,7 +983,7 @@ namespace iFood
             LBRezepteNaehrwerteAnzeige.Text = text;
         }
 
-        // ===================== Beispiel-Daten ===================== ---> mit KI gemacht, um ein paar Rezepte zum Testen zu haben. Kann natürlich jederzeit erweitert oder gelöscht werden.
+        // ===================== Beispiel-Daten ===================== ---> mit KI gemacht, um ein paar Rezepte zum Testen zu haben. Kann natürlich jederzeit erweitert oder gelöscht werden. Nur zur Demostration
 
         private void BeispielDatenLaden()
         {
