@@ -85,6 +85,21 @@ namespace iFood
             //SQLInComboBox();
             BTUtensielienHinzufuegen.Click += BTHinzufuegen_Click;
             BTUtensilienLoeschen.Click += BTUtensilienLoeschen_Click;
+
+            // Rezepte-Tab verdrahten
+            BTRezepteNeu.Click += BTRezepteNeu_Click;
+            BTRezeptSpeichern.Click += BTRezeptSpeichern_Click;
+            BTRezepteLoeschen.Click += BTRezepteLoeschen_Click;
+            LBRezepte.SelectedIndexChanged += LBRezepte_SelectedIndexChanged;
+            BTRezepteZutatenSuchen.Click += BTRezepteZutatenSuchen_Click;
+            BTZutatenHinzufuegen.Click += BTZutatenHinzufuegen_Click;
+            BTRezepteZutatenEntfernen.Click += BTRezepteZutatenEntfernen_Click;
+            BTRezepteUtensilienHinzufuegen.Click += BTRezepteUtensilienHinzufuegen_Click;
+            BTRezepteUtensilienEntfernen.Click += BTRezepteUtensilienEntfernen_Click;
+
+            // Listen beim Start laden
+            UtensilienListeLaden();
+            RezepteListeLaden();
         }
         private void SQLAdd()
         {
@@ -480,6 +495,369 @@ namespace iFood
             {
                 TB.Text = "";
             }
+        }
+
+        // ===================== Rezepte =====================
+
+        // Aktuell ausgewähltes/bearbeitetes Rezept (null = neues, noch nicht gespeichertes Rezept)
+        private long? aktuellesRezeptId = null;
+
+        // Hilfsklassen, damit die ListBoxen den Namen anzeigen, aber die Id mitführen
+        private class RezeptItem
+        {
+            public long Id;
+            public string Name = "";
+            public override string ToString() => Name;
+        }
+        private class LebensmittelItem
+        {
+            public long Id;
+            public string Name = "";
+            public override string ToString() => Name;
+        }
+        private class ZutatItem
+        {
+            public long LebensmittelId;
+            public string Name = "";
+            public double Menge;
+            public override string ToString() => $"{Name} ({Menge:0.#} g)";
+        }
+        private class UtensilItem
+        {
+            public long Id;
+            public string Name = "";
+            public override string ToString() => Name;
+        }
+
+        private void RezepteListeLaden()
+        {
+            LBRezepte.Items.Clear();
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Id, Name FROM Rezepte ORDER BY Name";
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                LBRezepte.Items.Add(new RezeptItem { Id = reader.GetInt64(0), Name = reader.GetString(1) });
+            }
+        }
+
+        private void ZutatenLaden(long rezeptId)
+        {
+            LBZutaten.Items.Clear();
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT L.Id, L.Name, RL.Menge
+                FROM RezeptLebensmitteln RL
+                JOIN Lebensmittel L ON L.Id = RL.LebensmittelId
+                WHERE RL.RezeptId = $id";
+            cmd.Parameters.AddWithValue("$id", rezeptId);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                LBZutaten.Items.Add(new ZutatItem
+                {
+                    LebensmittelId = reader.GetInt64(0),
+                    Name = reader.GetString(1),
+                    Menge = reader.IsDBNull(2) ? 0 : reader.GetDouble(2)
+                });
+            }
+        }
+
+        private void RezeptUtensilienLaden(long rezeptId)
+        {
+            LBRezepteUtensilien.Items.Clear();
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT U.UtensilId, U.Name
+                FROM RezeptUtensilien RU
+                JOIN Utensilien U ON U.UtensilId = RU.UtensilId
+                WHERE RU.RezeptId = $id";
+            cmd.Parameters.AddWithValue("$id", rezeptId);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                LBRezepteUtensilien.Items.Add(new UtensilItem { Id = reader.GetInt64(0), Name = reader.GetString(1) });
+            }
+        }
+
+        private void LBRezepte_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (LBRezepte.SelectedItem is not RezeptItem r)
+                return;
+
+            aktuellesRezeptId = r.Id;
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Name, Dauer, Anleitung, AnzahlPortionen FROM Rezepte WHERE Id = $id";
+            cmd.Parameters.AddWithValue("$id", r.Id);
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    TBRezepteDetailsName.Text = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                    TBRezepteDetailsDauer.Text = reader.IsDBNull(1) ? "" : reader.GetInt64(1).ToString();
+                    TBRezepteAnleitung.Text = reader.IsDBNull(2) ? "" : reader.GetString(2);
+                    TBRezepteDetailsPortionen.Text = reader.IsDBNull(3) ? "" : reader.GetInt64(3).ToString();
+                }
+            }
+
+            ZutatenLaden(r.Id);
+            RezeptUtensilienLaden(r.Id);
+        }
+
+        private void BTRezepteNeu_Click(object sender, EventArgs e)
+        {
+            aktuellesRezeptId = null;
+            LBRezepte.ClearSelected();
+
+            TBRezepteDetailsName.Text = "";
+            TBRezepteDetailsDauer.Text = "";
+            TBRezepteDetailsPortionen.Text = "";
+            TBRezepteAnleitung.Text = "";
+
+            LBZutaten.Items.Clear();
+            LBRezepteUtensilien.Items.Clear();
+            LBZutatenHinzufuegen.Items.Clear();
+            TBRezepteZutatenHinzufuegen.Text = "";
+            TBZutatenAnzahl.Text = "";
+            TBZutatenMenge.Text = "";
+        }
+
+        private void BTRezeptSpeichern_Click(object sender, EventArgs e)
+        {
+            string name = TBRezepteDetailsName.Text.Trim();
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Bitte geben Sie einen Namen für das Rezept ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            object dauer = int.TryParse(TBRezepteDetailsDauer.Text, out var d) ? d : DBNull.Value;
+            object portionen = int.TryParse(TBRezepteDetailsPortionen.Text, out var p) ? p : DBNull.Value;
+            string anleitung = TBRezepteAnleitung.Text;
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+
+            if (aktuellesRezeptId == null)
+            {
+                cmd.CommandText = @"
+                    INSERT INTO Rezepte (Name, Dauer, Anleitung, AnzahlPortionen)
+                    VALUES ($Name, $Dauer, $Anleitung, $Portionen);
+                    SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("$Name", name);
+                cmd.Parameters.AddWithValue("$Dauer", dauer);
+                cmd.Parameters.AddWithValue("$Anleitung", anleitung);
+                cmd.Parameters.AddWithValue("$Portionen", portionen);
+                aktuellesRezeptId = Convert.ToInt64(cmd.ExecuteScalar());
+            }
+            else
+            {
+                cmd.CommandText = @"
+                    UPDATE Rezepte
+                    SET Name = $Name, Dauer = $Dauer, Anleitung = $Anleitung, AnzahlPortionen = $Portionen
+                    WHERE Id = $Id";
+                cmd.Parameters.AddWithValue("$Name", name);
+                cmd.Parameters.AddWithValue("$Dauer", dauer);
+                cmd.Parameters.AddWithValue("$Anleitung", anleitung);
+                cmd.Parameters.AddWithValue("$Portionen", portionen);
+                cmd.Parameters.AddWithValue("$Id", aktuellesRezeptId.Value);
+                cmd.ExecuteNonQuery();
+            }
+
+            RezepteListeLaden();
+
+            // Gerade gespeichertes Rezept wieder auswählen
+            foreach (var item in LBRezepte.Items)
+            {
+                if (item is RezeptItem ri && ri.Id == aktuellesRezeptId)
+                {
+                    LBRezepte.SelectedItem = item;
+                    break;
+                }
+            }
+
+            MessageBox.Show($"Rezept '{name}' wurde gespeichert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void BTRezepteLoeschen_Click(object sender, EventArgs e)
+        {
+            if (LBRezepte.SelectedItem is not RezeptItem r)
+            {
+                MessageBox.Show("Bitte wählen Sie ein Rezept aus der Liste aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var conn = iFoodDb.OpenConnection();
+            using var transaktion = conn.BeginTransaction();
+            var cmd = conn.CreateCommand();
+            cmd.Transaction = transaktion;
+
+            cmd.CommandText = "DELETE FROM RezeptLebensmitteln WHERE RezeptId = $Id";
+            cmd.Parameters.AddWithValue("$Id", r.Id);
+            cmd.ExecuteNonQuery();
+
+            cmd.Parameters.Clear();
+            cmd.CommandText = "DELETE FROM RezeptUtensilien WHERE RezeptId = $Id";
+            cmd.Parameters.AddWithValue("$Id", r.Id);
+            cmd.ExecuteNonQuery();
+
+            cmd.Parameters.Clear();
+            cmd.CommandText = "DELETE FROM Rezepte WHERE Id = $Id";
+            cmd.Parameters.AddWithValue("$Id", r.Id);
+            cmd.ExecuteNonQuery();
+
+            transaktion.Commit();
+
+            MessageBox.Show($"Rezept '{r.Name}' wurde gelöscht.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            RezepteListeLaden();
+            BTRezepteNeu_Click(sender, e);
+        }
+
+        private void BTRezepteZutatenSuchen_Click(object sender, EventArgs e)
+        {
+            LBZutatenHinzufuegen.Items.Clear();
+            string suche = TBRezepteZutatenHinzufuegen.Text.Trim();
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Id, Name FROM Lebensmittel WHERE Name LIKE $s ORDER BY Name";
+            cmd.Parameters.AddWithValue("$s", "%" + suche + "%");
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                LBZutatenHinzufuegen.Items.Add(new LebensmittelItem { Id = reader.GetInt64(0), Name = reader.GetString(1) });
+            }
+
+            if (LBZutatenHinzufuegen.Items.Count == 0)
+                MessageBox.Show("Keine Lebensmittel gefunden.", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void BTZutatenHinzufuegen_Click(object sender, EventArgs e)
+        {
+            if (aktuellesRezeptId == null)
+            {
+                MessageBox.Show("Bitte speichern Sie zuerst das Rezept, bevor Sie Zutaten hinzufügen.", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (LBZutatenHinzufuegen.SelectedItem is not LebensmittelItem l)
+            {
+                MessageBox.Show("Bitte wählen Sie eine Zutat aus den Suchergebnissen aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            double anzahl = 1;
+            if (!string.IsNullOrWhiteSpace(TBZutatenAnzahl.Text) && !double.TryParse(TBZutatenAnzahl.Text, out anzahl))
+            {
+                MessageBox.Show("Bitte geben Sie eine gültige Anzahl ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!double.TryParse(TBZutatenMenge.Text, out double mengeProStueck))
+            {
+                MessageBox.Show("Bitte geben Sie eine gültige Menge in g ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            double menge = anzahl * mengeProStueck;
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                INSERT INTO RezeptLebensmitteln (RezeptId, LebensmittelId, Menge)
+                VALUES ($RezeptId, $LebensmittelId, $Menge)";
+            cmd.Parameters.AddWithValue("$RezeptId", aktuellesRezeptId.Value);
+            cmd.Parameters.AddWithValue("$LebensmittelId", l.Id);
+            cmd.Parameters.AddWithValue("$Menge", menge);
+            cmd.ExecuteNonQuery();
+
+            ZutatenLaden(aktuellesRezeptId.Value);
+            TBZutatenAnzahl.Text = "";
+            TBZutatenMenge.Text = "";
+        }
+
+        private void BTRezepteZutatenEntfernen_Click(object sender, EventArgs e)
+        {
+            if (aktuellesRezeptId == null)
+            {
+                MessageBox.Show("Bitte wählen Sie zuerst ein Rezept aus.", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (LBZutaten.SelectedItem is not ZutatItem z)
+            {
+                MessageBox.Show("Bitte wählen Sie eine Zutat aus dem Rezept aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM RezeptLebensmitteln WHERE RezeptId = $RezeptId AND LebensmittelId = $LebensmittelId";
+            cmd.Parameters.AddWithValue("$RezeptId", aktuellesRezeptId.Value);
+            cmd.Parameters.AddWithValue("$LebensmittelId", z.LebensmittelId);
+            cmd.ExecuteNonQuery();
+
+            ZutatenLaden(aktuellesRezeptId.Value);
+        }
+
+        private void BTRezepteUtensilienHinzufuegen_Click(object sender, EventArgs e)
+        {
+            if (aktuellesRezeptId == null)
+            {
+                MessageBox.Show("Bitte speichern Sie zuerst das Rezept, bevor Sie Utensilien hinzufügen.", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            string name = Convert.ToString(CBUtensilienHinzufuegen.SelectedItem) ?? "";
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Bitte wählen Sie ein Utensil aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT UtensilId FROM Utensilien WHERE Name = $Name LIMIT 1";
+            cmd.Parameters.AddWithValue("$Name", name);
+            var result = cmd.ExecuteScalar();
+            if (result == null || result == DBNull.Value)
+            {
+                MessageBox.Show("Das Utensil konnte nicht gefunden werden.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            long utensilId = Convert.ToInt64(result);
+
+            cmd.Parameters.Clear();
+            cmd.CommandText = "INSERT OR IGNORE INTO RezeptUtensilien (RezeptId, UtensilId) VALUES ($RezeptId, $UtensilId)";
+            cmd.Parameters.AddWithValue("$RezeptId", aktuellesRezeptId.Value);
+            cmd.Parameters.AddWithValue("$UtensilId", utensilId);
+            cmd.ExecuteNonQuery();
+
+            RezeptUtensilienLaden(aktuellesRezeptId.Value);
+        }
+
+        private void BTRezepteUtensilienEntfernen_Click(object sender, EventArgs e)
+        {
+            if (aktuellesRezeptId == null)
+            {
+                MessageBox.Show("Bitte wählen Sie zuerst ein Rezept aus.", "Hinweis", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (LBRezepteUtensilien.SelectedItem is not UtensilItem u)
+            {
+                MessageBox.Show("Bitte wählen Sie ein Utensil aus dem Rezept aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM RezeptUtensilien WHERE RezeptId = $RezeptId AND UtensilId = $UtensilId";
+            cmd.Parameters.AddWithValue("$RezeptId", aktuellesRezeptId.Value);
+            cmd.Parameters.AddWithValue("$UtensilId", u.Id);
+            cmd.ExecuteNonQuery();
+
+            RezeptUtensilienLaden(aktuellesRezeptId.Value);
         }
     }
 }
