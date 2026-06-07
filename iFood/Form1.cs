@@ -98,6 +98,7 @@ namespace iFood
             BTRezepteUtensilienEntfernen.Click += BTRezepteUtensilienEntfernen_Click;
 
             // Listen beim Start laden
+            BeispielDatenLaden();
             UtensilienListeLaden();
             RezepteListeLaden();
         }
@@ -109,7 +110,7 @@ namespace iFood
             cmd.Parameters.AddWithValue("$Name", "Pizzer");
             cmd.ExecuteNonQuery();
         }
-        private void SQLInComboBox()
+        private void SQLInComboBox()// Suche nach Name
         {
             using var conn = iFoodDb.OpenConnection();
             var cmd = conn.CreateCommand();
@@ -148,7 +149,7 @@ namespace iFood
                         LBErgebnis.Items.Add(t);
             }
         }
-        private void Ausgabe(string Lebensmittel)
+        private void Ausgabe(string Lebensmittel)// Ausgabe der Nährwerte eines Lebensmittels
         {
             using var conn = iFoodDb.OpenConnection();
             var cmd = conn.CreateCommand();
@@ -162,7 +163,7 @@ namespace iFood
             cmd.Parameters.Clear();
             cmd.CommandText = "SELECT Kalorien FROM Naehrwerte WHERE LebensmittelID = $id";
             cmd.Parameters.AddWithValue("$id", id);
-            result = cmd.ExecuteScalar();
+            result = cmd.ExecuteScalar();// Ergebnis der Abfrage (Kalorien) wird in result gespeichert
             TBKalorien.Text = result == null || result == DBNull.Value
                 ? ""
                 : Math.Round(Convert.ToDouble(result), 1).ToString();
@@ -294,7 +295,7 @@ namespace iFood
         }
         private void SucheNachAtt(string Attribute, double Anzahl)
         {
-            // Whitelist � nur diese Spaltennamen sind erlaubt
+            // nur diese Spaltennamen sind erlaubt
             var erlaubt = new HashSet<string> {
         "Kalorien", "Kohlenhydrate", "DavonZucker",
         "Fett", "DavonGesFettsaeuren", "Eiweiss", "Salz"
@@ -406,7 +407,7 @@ namespace iFood
                 {
                 }
             }
-            if (voll == true)
+            if (voll == true)// Alle Nährwerte sind ausgefüllt, jetzt wird das Lebensmittel hinzugefügt
             {
                 string name = TBSuche.Text.Trim();
                 if (string.IsNullOrEmpty(name))
@@ -496,8 +497,6 @@ namespace iFood
                 TB.Text = "";
             }
         }
-
-        // ===================== Rezepte =====================
 
         // Aktuell ausgewähltes/bearbeitetes Rezept (null = neues, noch nicht gespeichertes Rezept)
         private long? aktuellesRezeptId = null;
@@ -607,6 +606,7 @@ namespace iFood
 
             ZutatenLaden(r.Id);
             RezeptUtensilienLaden(r.Id);
+            RezeptNaehrwerteAktualisieren(r.Id);
         }
 
         private void BTRezepteNeu_Click(object sender, EventArgs e)
@@ -625,6 +625,8 @@ namespace iFood
             TBRezepteZutatenHinzufuegen.Text = "";
             TBZutatenAnzahl.Text = "";
             TBZutatenMenge.Text = "";
+
+            LBRezepteNaehrwerteAnzeige.Text = "(Rezept auswählen oder neu speichern)";
         }
 
         private void BTRezeptSpeichern_Click(object sender, EventArgs e)
@@ -768,13 +770,14 @@ namespace iFood
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
                 INSERT INTO RezeptLebensmitteln (RezeptId, LebensmittelId, Menge)
-                VALUES ($RezeptId, $LebensmittelId, $Menge)";
+                VALUES ($RezeptId, $LebensmittelId, $Menge)";// Es wird eine neue Zeile in der Tabelle RezeptLebensmitteln angelegt, die das aktuelle Rezept mit der ausgewählten Zutat und der angegebenen Menge verknüpft.
             cmd.Parameters.AddWithValue("$RezeptId", aktuellesRezeptId.Value);
             cmd.Parameters.AddWithValue("$LebensmittelId", l.Id);
             cmd.Parameters.AddWithValue("$Menge", menge);
             cmd.ExecuteNonQuery();
 
             ZutatenLaden(aktuellesRezeptId.Value);
+            RezeptNaehrwerteAktualisieren(aktuellesRezeptId.Value);
             TBZutatenAnzahl.Text = "";
             TBZutatenMenge.Text = "";
         }
@@ -800,6 +803,7 @@ namespace iFood
             cmd.ExecuteNonQuery();
 
             ZutatenLaden(aktuellesRezeptId.Value);
+            RezeptNaehrwerteAktualisieren(aktuellesRezeptId.Value);
         }
 
         private void BTRezepteUtensilienHinzufuegen_Click(object sender, EventArgs e)
@@ -858,6 +862,273 @@ namespace iFood
             cmd.ExecuteNonQuery();
 
             RezeptUtensilienLaden(aktuellesRezeptId.Value);
+        }
+
+        private Dictionary<string, double> RezeptNaehrwerteBerechnen(long rezeptId) // Berechnung der Nährwerte für ein Rezept, indem die Nährwerte aller Zutaten addiert und auf die Menge angepasst werden. Gibt ein Dictionary mit den Nährwerten zurück.
+        {
+            var summe = new Dictionary<string, double>
+            {
+                { "Kalorien", 0 },
+                { "Kohlenhydrate", 0 },
+                { "DavonZucker", 0 },
+                { "Fett", 0 },
+                { "DavonGesFettsaeuren", 0 },
+                { "Eiweiss", 0 },
+                { "Salz", 0 }
+            };
+
+            using var conn = iFoodDb.OpenConnection();
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                SELECT RL.Menge,
+                       N.Kalorien, N.Kohlenhydrate, N.DavonZucker,
+                       N.Fett, N.DavonGesFettsaeuren, N.Eiweiss, N.Salz
+                FROM RezeptLebensmitteln RL
+                JOIN Naehrwerte N ON N.LebensmittelID = RL.LebensmittelId
+                WHERE RL.RezeptId = $id";
+            cmd.Parameters.AddWithValue("$id", rezeptId);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                double menge = reader.IsDBNull(0) ? 0 : reader.GetDouble(0);
+                double faktor = menge / 100.0; // pro 100 g
+
+                if (!reader.IsDBNull(1)) summe["Kalorien"]            += reader.GetDouble(1) * faktor;
+                if (!reader.IsDBNull(2)) summe["Kohlenhydrate"]       += reader.GetDouble(2) * faktor;
+                if (!reader.IsDBNull(3)) summe["DavonZucker"]         += reader.GetDouble(3) * faktor;
+                if (!reader.IsDBNull(4)) summe["Fett"]                += reader.GetDouble(4) * faktor;
+                if (!reader.IsDBNull(5)) summe["DavonGesFettsaeuren"] += reader.GetDouble(5) * faktor;
+                if (!reader.IsDBNull(6)) summe["Eiweiss"]             += reader.GetDouble(6) * faktor;
+                if (!reader.IsDBNull(7)) summe["Salz"]                += reader.GetDouble(7) * faktor;
+            }
+
+            return summe;
+        }
+
+        private void RezeptNaehrwerteAktualisieren(long rezeptId)
+        {
+            var summe = RezeptNaehrwerteBerechnen(rezeptId);
+
+            // portionen aus der datenbank holen
+            int portionen = 0;
+            using (var conn = iFoodDb.OpenConnection())
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT AnzahlPortionen FROM Rezepte WHERE Id = $id";
+                cmd.Parameters.AddWithValue("$id", rezeptId);
+                var result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    portionen = Convert.ToInt32(result);
+                }
+            }
+
+            // text für die anzeige zusammenbauen
+            string text = "";
+            text += $"Kalorien:               {summe["Kalorien"]:0.0} kcal\r\n";
+            text += $"Kohlenhydrate:    {summe["Kohlenhydrate"]:0.0} g\r\n";
+            text += $"  davon Zucker:    {summe["DavonZucker"]:0.0} g\r\n";
+            text += $"Fett:                       {summe["Fett"]:0.0} g\r\n";
+            text += $"  davon ges. FS:   {summe["DavonGesFettsaeuren"]:0.0} g\r\n";
+            text += $"Eiweiß:                  {summe["Eiweiss"]:0.0} g\r\n";
+            text += $"Salz:                      {summe["Salz"]:0.0} g";
+
+            // falls portionen angegeben wurden, auch pro portion anzeigen
+            if (portionen > 0)
+            {
+                text += "\r\n\r\n";
+                text += $"Pro Portion ({portionen} Portionen):\r\n";
+                text += $"Kalorien:               {summe["Kalorien"] / portionen:0.0} kcal\r\n";
+                text += $"Eiweiß:                  {summe["Eiweiss"] / portionen:0.0} g\r\n";
+                text += $"Fett:                       {summe["Fett"] / portionen:0.0} g\r\n";
+                text += $"Kohlenhydrate:    {summe["Kohlenhydrate"] / portionen:0.0} g";
+            }
+
+            LBRezepteNaehrwerteAnzeige.Text = text;
+        }
+
+        // ===================== Beispiel-Daten ===================== ---> mit KI gemacht, um ein paar Rezepte zum Testen zu haben. Kann natürlich jederzeit erweitert oder gelöscht werden.
+
+        private void BeispielDatenLaden()
+        {
+            using var conn = iFoodDb.OpenConnection();
+
+            // schauen ob schon beispieldaten vorhanden sind
+            var check = conn.CreateCommand();
+            check.CommandText = "SELECT COUNT(*) FROM Rezepte WHERE Name = 'Spaghetti Bolognese'";
+            long anzahl = Convert.ToInt64(check.ExecuteScalar());
+
+            // wenn schon vorhanden nichts machen
+            if (anzahl > 0)
+            {
+                return;
+            }
+
+            // lebensmittel hinzufügen und id zurückgeben
+            long AddLebensmittel(string name, string hersteller,
+                double kalorien, double kohlenhydrate, double zucker,
+                double fett, double gesFett, double eiweiss, double salz)
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Lebensmittel (Name, Hersteller) VALUES ($Name, $Hersteller);
+                            SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("$Name", name);
+                cmd.Parameters.AddWithValue("$Hersteller", hersteller);
+                long id = Convert.ToInt64(cmd.ExecuteScalar());
+
+                // nährwerte separat einfügen
+                var n = conn.CreateCommand();
+                n.CommandText = @"INSERT INTO Naehrwerte
+                              (LebensmittelID, Kalorien, Kohlenhydrate, DavonZucker, Fett, DavonGesFettsaeuren, Eiweiss, Salz)
+                          VALUES
+                              ($Id, $Kal, $KH, $Zucker, $Fett, $GesFS, $Eiweiss, $Salz)";
+                n.Parameters.AddWithValue("$Id", id);
+                n.Parameters.AddWithValue("$Kal", kalorien);
+                n.Parameters.AddWithValue("$KH", kohlenhydrate);
+                n.Parameters.AddWithValue("$Zucker", zucker);
+                n.Parameters.AddWithValue("$Fett", fett);
+                n.Parameters.AddWithValue("$GesFS", gesFett);
+                n.Parameters.AddWithValue("$Eiweiss", eiweiss);
+                n.Parameters.AddWithValue("$Salz", salz);
+                n.ExecuteNonQuery();
+
+                return id;
+            }
+
+            // neues rezept anlegen
+            long AddRezept(string name, int dauer, int portionen, string anleitung)
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Rezepte (Name, Dauer, Anleitung, AnzahlPortionen)
+                            VALUES ($Name, $Dauer, $Anleitung, $Portionen);
+                            SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("$Name", name);
+                cmd.Parameters.AddWithValue("$Dauer", dauer);
+                cmd.Parameters.AddWithValue("$Anleitung", anleitung);
+                cmd.Parameters.AddWithValue("$Portionen", portionen);
+                return Convert.ToInt64(cmd.ExecuteScalar());
+            }
+
+            // zutat zu einem rezept hinzufügen
+            void AddZutat(long rezeptId, long lebensmittelId, double mengeGramm)
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO RezeptLebensmitteln (RezeptId, LebensmittelId, Menge)
+                            VALUES ($R, $L, $M)";
+                cmd.Parameters.AddWithValue("$R", rezeptId);
+                cmd.Parameters.AddWithValue("$L", lebensmittelId);
+                cmd.Parameters.AddWithValue("$M", mengeGramm);
+                cmd.ExecuteNonQuery();
+            }
+
+            // utensil hinzufügen, falls noch nicht vorhanden
+            long AddUtensil(string name)
+            {
+                var check2 = conn.CreateCommand();
+                check2.CommandText = "SELECT UtensilId FROM Utensilien WHERE Name = $Name";
+                check2.Parameters.AddWithValue("$Name", name);
+                var r = check2.ExecuteScalar();
+
+                // falls schon vorhanden einfach die id zurückgeben
+                if (r != null && r != DBNull.Value)
+                {
+                    return Convert.ToInt64(r);
+                }
+
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Utensilien (Name) VALUES ($Name);
+                            SELECT last_insert_rowid();";
+                cmd.Parameters.AddWithValue("$Name", name);
+                return Convert.ToInt64(cmd.ExecuteScalar());
+            }
+
+            void AddRezeptUtensil(long rezeptId, long utensilId)
+            {
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = @"INSERT OR IGNORE INTO RezeptUtensilien (RezeptId, UtensilId)
+                            VALUES ($R, $U)";
+                cmd.Parameters.AddWithValue("$R", rezeptId);
+                cmd.Parameters.AddWithValue("$U", utensilId);
+                cmd.ExecuteNonQuery();
+            }
+
+            // lebensmittel anlegen (nährwerte pro 100g)
+            long spaghetti = AddLebensmittel("Spaghetti (roh)", "Barilla", 358, 71.2, 3.5, 1.5, 0.3, 12.5, 0.01);
+            long tomate = AddLebensmittel("Tomaten", "frisch", 18, 3.9, 2.6, 0.2, 0.0, 0.9, 0.01);
+            long hack = AddLebensmittel("Rinderhackfleisch", "Metzgerei", 250, 0.0, 0.0, 20.0, 8.0, 17.0, 0.10);
+            long zwiebel = AddLebensmittel("Zwiebel", "frisch", 40, 9.3, 4.2, 0.1, 0.0, 1.1, 0.01);
+            long knoblauch = AddLebensmittel("Knoblauch", "frisch", 149, 33.1, 1.0, 0.5, 0.1, 6.4, 0.02);
+            long olivenoel = AddLebensmittel("Olivenöl", "Bertolli", 884, 0.0, 0.0, 100.0, 14.0, 0.0, 0.00);
+            long mehl = AddLebensmittel("Weizenmehl Typ 405", "Aurora", 348, 72.3, 0.7, 1.0, 0.2, 10.0, 0.01);
+            long ei = AddLebensmittel("Hühnerei", "frisch", 155, 1.1, 1.1, 11.0, 3.3, 13.0, 0.36);
+            long milch = AddLebensmittel("Milch 3,5%", "Weihenstephan", 65, 4.8, 4.8, 3.5, 2.3, 3.3, 0.13);
+            long zucker = AddLebensmittel("Zucker", "Südzucker", 405, 101.0, 101.0, 0.0, 0.0, 0.0, 0.00);
+            long butter = AddLebensmittel("Butter", "Kerrygold", 741, 0.6, 0.6, 82.0, 52.0, 0.7, 1.20);
+            long kartoffel = AddLebensmittel("Kartoffel", "frisch", 77, 17.0, 0.8, 0.1, 0.0, 2.0, 0.01);
+            long kaese = AddLebensmittel("Gouda", "Frico", 356, 0.0, 0.0, 27.4, 18.0, 25.0, 1.70);
+
+            // utensilien
+            long topf = AddUtensil("Topf");
+            long pfanne = AddUtensil("Pfanne");
+            long messer = AddUtensil("Messer");
+            long brett = AddUtensil("Schneidebrett");
+            long schuessel = AddUtensil("Schüssel");
+            long ruehrer = AddUtensil("Rührgerät");
+            long backform = AddUtensil("Backform");
+
+            // rezept 1
+            long r1 = AddRezept("Spaghetti Bolognese", 40, 4,
+                "1. Zwiebel und Knoblauch fein hacken. " +
+                "2. In Olivenöl andünsten. " +
+                "3. Hackfleisch dazugeben und scharf anbraten. " +
+                "4. Tomaten klein schneiden, dazugeben und 20 Min köcheln lassen. " +
+                "5. Spaghetti in Salzwasser kochen. " +
+                "6. Soße über die Spaghetti geben.");
+            AddZutat(r1, spaghetti, 500);
+            AddZutat(r1, hack, 400);
+            AddZutat(r1, tomate, 400);
+            AddZutat(r1, zwiebel, 100);
+            AddZutat(r1, knoblauch, 10);
+            AddZutat(r1, olivenoel, 20);
+            AddRezeptUtensil(r1, topf);
+            AddRezeptUtensil(r1, pfanne);
+            AddRezeptUtensil(r1, messer);
+            AddRezeptUtensil(r1, brett);
+
+            // rezept 2
+            long r2 = AddRezept("Pfannkuchen", 25, 4,
+                "1. Mehl, Milch, Eier und eine Prise Zucker in einer Schüssel verquirlen. " +
+                "2. Teig 10 Min ruhen lassen. " +
+                "3. Etwas Butter in der Pfanne zerlassen. " +
+                "4. Eine Kelle Teig hineingeben und von beiden Seiten goldbraun backen. " +
+                "5. Mit Zucker bestreuen und servieren.");
+            AddZutat(r2, mehl, 250);
+            AddZutat(r2, milch, 500);
+            AddZutat(r2, ei, 150); // ca. 3 Eier
+            AddZutat(r2, zucker, 30);
+            AddZutat(r2, butter, 20);
+            AddRezeptUtensil(r2, pfanne);
+            AddRezeptUtensil(r2, schuessel);
+            AddRezeptUtensil(r2, ruehrer);
+
+            // rezept 3
+            long r3 = AddRezept("Kartoffelgratin", 70, 4,
+                "1. Kartoffeln schälen und in dünne Scheiben schneiden. " +
+                "2. Knoblauch fein hacken, mit Milch und Salz aufkochen. " +
+                "3. Kartoffeln in eine gefettete Backform schichten. " +
+                "4. Milchmischung darüber gießen. " +
+                "5. Mit geriebenem Gouda bestreuen. " +
+                "6. Bei 180°C ca. 45 Min backen.");
+            AddZutat(r3, kartoffel, 1000);
+            AddZutat(r3, milch, 400);
+            AddZutat(r3, kaese, 150);
+            AddZutat(r3, knoblauch, 8);
+            AddZutat(r3, butter, 20);
+            AddRezeptUtensil(r3, backform);
+            AddRezeptUtensil(r3, messer);
+            AddRezeptUtensil(r3, brett);
+            AddRezeptUtensil(r3, topf);
         }
     }
 }
